@@ -270,7 +270,7 @@
       (net 49 GNDA))
     (pad 2 thru_hole circle (at 2 1.27) (size 1.378 1.378) (drill 0.87) (layers *.Cu *.Mask)
       (net 36 "Net-(C7-Pad2)"))
-    (model "/Users/ezra/Desktop/FPGA/pet-on-a-chip/pcb/delux pet on a chip/3D/cma-4544pf-w.stp"
+    (model ${KIPRJMOD}/3D/cma-4544pf-w.stp
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz -90 0 0))
