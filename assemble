@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# $1 is the source file, eg blink.asm
+# $2 is the prefix name of the files to be generated, eg. blink, and the tools add the extentions eg. blink_data.hex
+
+[ -z "$1" ] && echo "Missing source file and output name parameters." && exit
+[ -z "$2" ] && echo "Missing output name parameter." && exit
+[ $2 == "hardware" ] && echo Sorry, \"hardware\" is an illegal output name. && exit
+
+mkdir -p build/images || exit
+python3 assembler/assembler.py $1 -o $2 || exit
+
+mv $2"_instructions.hex" build/images/$2"_instructions.hex" || exit
+mv $2"_data.hex" build/images/$2"_data.hex" || exit

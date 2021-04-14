@@ -1,0 +1,49 @@
+#GPIO
+# Note that all gpio pins have pullups enabled.
+# See d_ram_and_io.v for details
+set_io gpio_pins[0] L2
+set_io gpio_pins[1] L1
+set_io gpio_pins[2] K2
+set_io gpio_pins[3] K1
+set_io gpio_pins[4] J2
+set_io gpio_pins[5] J1
+set_io gpio_pins[6] C7
+set_io gpio_pins[7] H11
+
+# UART
+set_io rx L4
+set_io tx L3
+
+# Motor Controller
+set_io pwm[0] B2
+set_io pwm[1] E2
+set_io motor[0] C2
+set_io motor[1] C1
+set_io motor[2] D2
+set_io motor[3] E1
+set_io motor_enable D1
+set_io encoders[0] A8
+set_io encoders[1] A9
+
+# Servo
+set_io servo_pin F2
+
+# Sonar
+set_io trig A7
+set_io echo C8
+
+# Excom
+set_io excom D10
+
+# GPU
+set_io h_sync J8
+set_io v_sync H9
+set_io R D9
+set_io G E9
+set_io B F9
+
+# Reset
+set_io -pullup yes reset B6
+
+# Global Clock
+set_io clk K6
