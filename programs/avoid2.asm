@@ -76,7 +76,7 @@ loop:   ldi r0, 40                      ; move forwards
 sense0: call ping
         out r0, port_reg                ; display lsbs of the range on the leds
         cpi r0, 15
-        bnc sense0
+        bnn sense0
 
         ldi r0, 0                       ; stop
         out r0, motor_pwm0
@@ -110,7 +110,7 @@ sense0: call ping
         call delay
 
         cmp r2, r1
-        bc right
+        bn right
 
 left:   ldi r0, 0b00001001
         br rotate

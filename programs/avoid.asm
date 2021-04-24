@@ -52,13 +52,13 @@ run:    call forwards
 sense0: call ping
         out r0, port_reg
         cpi r0, 15
-        bnc sense0
+        bnn sense0
 
         call rotate
 
 sense1: call ping
         cpi r0, 15
-        bc sense1
+        bn sense1
 
         br run
 ;******************************************************************************

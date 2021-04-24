@@ -17,7 +17,7 @@ module alu(input wire [7:0] dataA,
         4'b0100:    {cout, out} = {cin,dataA ^ dataB};          // XOR
         4'b0101:    {cout, out} = dataA + dataB;                // ADD
         4'b0110:    {cout, out} = dataA + dataB + {7'b0,cin};   // ADC
-        4'b0111:    {cout, out} = {(dataA < dataB),dataA};      // CMP          // Sets carry on greater, passes dataA
+        4'b0111:    {cout, out} = {(dataA > dataB),dataA};      // CMP          // Sets carry on greater, passes dataA
         4'b1000:    {cout, out} = dataA - dataB;                // SUB
         4'b1001:    {cout, out} = dataA - dataB - {7'b0,cin};   // SBB
         4'b1010:    {cout, out} = (dataA << 1);                 // SLL
@@ -32,7 +32,7 @@ module alu(input wire [7:0] dataA,
     always @(*) begin
         if(mode == 4'b0111) begin       // If CMP
             zout = (dataA == dataB);
-            nout = (dataA > dataB);
+            nout = (dataA < dataB);
         end
         else begin
             zout = (out == 8'd0);

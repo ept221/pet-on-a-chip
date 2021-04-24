@@ -53,14 +53,14 @@ poll0:  in r0, sonar_control    ; poll for reading ready
         srl r1
         srl r1
         cpi r1, 0x09
-        bn alpha1
+        bc alpha1
         adi r1, 48
         br print1
 alpha1: adi r1, 55
 print1: call print
         ani r0, 0x0f
         cpi r0, 0x09
-        bn alpha2
+        bc alpha2
         adi r0, 48
         br print2
 alpha2: adi r0, 55
