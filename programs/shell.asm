@@ -161,6 +161,43 @@ cmp_str_ret:    pop r5
                 pop r0
                 ret
 ;******************************************************************************
+; r0 holds the dividend
+; r1 holds the divisor
+; r2 holds the quotient
+; r3 holds the remainder
+
+divmod:         push r0
+                push r4
+
+                ldi r3, 0           ; initilize the remander to zero
+                ldi r4, 8           ; initilize the counter
+                csr 0
+
+divmod_loop:    pus
+                cpi r4, 0           ; check the counter
+                bz divmod_end       ; branch if we've shifted all 8 times
+                adi r4, -1
+                pos
+                
+                rlc r0              ; shift the dividend left and bring in the next bit of the quotient
+                rlc r3              ; shift the remainder left and bring in the next bit of the remainder
+
+                sub r3, r1          ; subtract the divisor from the remainder
+                bc divmod_loop      ; don't restore if the result was positive
+                
+                add r3, r1          ; else restore
+                csr 0
+                br divmod_loop
+
+divmod_end:     pos
+
+                rlc r0              ; get the last bit of the quotient
+                mov r2, r0          ; copy the quotient into r2
+
+                pop r0              ; restore the counter reg
+                pop r4              ; restore the dividend
+                ret
+;******************************************************************************
                 .data
 text:           .string "                                "
 prompt:         .string "> "
