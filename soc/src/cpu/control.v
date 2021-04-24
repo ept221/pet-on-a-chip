@@ -414,10 +414,10 @@ module control(input wire clk,
             end
             else if(PUS_TYPE) begin
                 regFileSrc = 1'b0;                  // aluOut, doesn't really matter
-                regFileOutBSelect = {iMemOut[11:9],1'b0};  // lower SP reg
+                regFileOutBSelect = {iMemOut[11:9],1'b0};  // lower SP reg so outputs SP for BC
                 regFileWriteEnable = 1'b0;
                 regFileAdd = 1'b1;
-                regFileConstSrc = 2'b00;
+                regFileConstSrc = 2'b01;
                 aluSrcASelect = 1'b1;               // From zero-extended status register
                 aluSrcBSelect = 2'b00;              // regFileOutB, doesn't really matter
                 aluMode = 4'b0000;                  // pass A
@@ -434,7 +434,7 @@ module control(input wire clk,
             end
             else if(POS_TYPE) begin
                 regFileSrc = 1'b0;                  // aluOut, doesn't really matter
-                regFileOutBSelect = {iMemOut[11:9],1'b0};  // lower SP reg   
+                regFileOutBSelect = {iMemOut[11:9],1'b0};  // lower SP reg so outputs SP for BC
                 regFileWriteEnable = 1'b0;
                 regFileAdd = (state == PART1);
                 regFileConstSrc = 2'b00;
@@ -442,11 +442,11 @@ module control(input wire clk,
                 aluSrcBSelect = 2'b00;              // regFileOutB, doesn't really matter
                 aluMode = 4'b0000;                  // Pass A, doesn't really matter
                 dMemDataSelect = 3'b000;            // aluOut, doesn't really matter
-                dMemIOAddressSelect = 2'b00;        // {regFileOutC,regFileOutB}
+                dMemIOAddressSelect = 2'b10;        // {regFileOutC,regFileOutB} + 1
                 dMemIOWriteEn = 1'b0;
                 dMemIOReadEn = (state == PART1);
                 statusRegSrcSelect = 2'b10;         // dMemIOOut[3:0]
-                flagEnable = 1'b1;
+                flagEnable = (state == PART2);
                 iMemAddrSelect = 3'b000;            // pcOut
                 iMemReadEnable = (state == PART2);
                 pcWriteEn = (state == PART2);
