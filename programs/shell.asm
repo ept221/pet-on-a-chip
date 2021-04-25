@@ -14,45 +14,31 @@ main:           ldi r0, 8
                 mov r12, r14            ; setup the frame pointer
                 mov r13, r15
 
+
+                ldi r2, text[l]
+                ldi r3, text[h]
+                call print_str
+
+                ldi r2, buff[l]
+                ldi r3, buff[h]
+                call print_str
+
                 ldi r4, text[l]
                 ldi r5, text[h]
                 call atoi
 
-                ldi r4, foo[l]
-                ldi r5, foo[h]
+                ldi r4, buff[l]
+                ldi r5, buff[h]
                 call itoa
 
-                ldi r2, foo[l]
-                ldi r3, foo[h]
+                ldi r2, text[l]
+                ldi r3, text[h]
                 call print_str
 
+                ldi r2, buff[l]
+                ldi r3, buff[h]
+                call print_str
 
-                ;ldi r2, prompt[l]
-                ;ldi r3, prompt[h]
-                ;call print_str
-
-                ;ldi r0, 32
-                ;ldi r1, 0
-                ;ldi r2, text[l]
-                ;ldi r3, text[h]
-                ;call get_str
-
-                ;ldi r4, yes[l]
-                ;ldi r5, yes[h]
-                ;call cmp_str
-
-                ;cpi r6, 0
-                ;bnz main_no
-
-                ;ldi r2, yes[l]
-                ;ldi r3, yes[h]
-                ;call print_str
-                ;br main
-
-main_no:        ;ldi r2, no[l]
-                ;ldi r3, no[h]
-                ;call print_str
-                ;br main
                 hlt
 ;******************************************************************************
 ; print_str prints a string over the UART. A pointer to the string must be in
@@ -263,7 +249,8 @@ itoa:           push r0
                 ldi r0, 48          ; otherwise create the string "0\0"
                 sri r0, p4
                 ldi r0, 0
-                br itoa_end
+                sri r0, p4
+                br itoa_ret
 
 itoa_nz:        ldi r1, 10          ; set divisor to 10
                 mov r6, r4
@@ -319,7 +306,12 @@ atoi:           push r1
 
 atoi_loop:      lri r6, p4              ; get a char from the string
                 cpi r6, 0               ; check if it is null
-                bz atoi_end             ; if it is, finish
+                bz atoi_sane            ; if it is, finish
+
+                cpi r6, 48
+                bn atoi_bad
+                cpi r6, 57
+                bc atoi_bad       
 
                 adi r6, -48             ; convert char to int
 
@@ -329,7 +321,9 @@ atoi_loop:      lri r6, p4              ; get a char from the string
 
                 br atoi_loop            ; get another char
 
-atoi_end:       pop r6
+atoi_bad:       ldi r0, 0x00
+
+atoi_sane:      pop r6
                 pop r5
                 pop r4
                 pop r3
@@ -338,9 +332,9 @@ atoi_end:       pop r6
                 ret
 ;******************************************************************************
                 .data
-text:           .string "134"
-foo:            .string "    "
+text:           .string "98k"
 prompt:         .string "> "
 you:            .string "You entered: "
 yes:            .string "yes\n"
 no:             .string "no\n"
+buff:            .string "      "
