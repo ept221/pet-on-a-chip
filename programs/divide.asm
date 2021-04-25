@@ -57,7 +57,7 @@ divmod_end:     pos
                 rlc r0              ; get the last bit of the quotient
                 mov r2, r0          ; copy the quotient into r2
 
-                pop r0              ; restore the counter reg
-                pop r4              ; restore the dividend
+                pop r4              ; restore the counter reg
+                pop r0              ; restore the dividend
                 ret
 ;******************************************************************************

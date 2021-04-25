@@ -14,32 +14,43 @@ main:           ldi r0, 8
                 mov r12, r14            ; setup the frame pointer
                 mov r13, r15
 
-                ldi r2, prompt[l]
-                ldi r3, prompt[h]
-                call print_str
+                in r0, uart_baud
+                ldi r4, text[l]
+                ldi r5, text[h]
+                call itoa
 
-                ldi r0, 32
-                ldi r1, 0
                 ldi r2, text[l]
                 ldi r3, text[h]
-                call get_str
-
-                ldi r4, yes[l]
-                ldi r5, yes[h]
-                call cmp_str
-
-                cpi r6, 0
-                bnz main_no
-
-                ldi r2, yes[l]
-                ldi r3, yes[h]
                 call print_str
-                br main
 
-main_no:        ldi r2, no[l]
-                ldi r3, no[h]
-                call print_str
-                br main
+
+                ;ldi r2, prompt[l]
+                ;ldi r3, prompt[h]
+                ;call print_str
+
+                ;ldi r0, 32
+                ;ldi r1, 0
+                ;ldi r2, text[l]
+                ;ldi r3, text[h]
+                ;call get_str
+
+                ;ldi r4, yes[l]
+                ;ldi r5, yes[h]
+                ;call cmp_str
+
+                ;cpi r6, 0
+                ;bnz main_no
+
+                ;ldi r2, yes[l]
+                ;ldi r3, yes[h]
+                ;call print_str
+                ;br main
+
+main_no:        ;ldi r2, no[l]
+                ;ldi r3, no[h]
+                ;call print_str
+                ;br main
+                hlt
 ;******************************************************************************
 ; print_str prints a string over the UART. A pointer to the string must be in
 ; the register pair p2. Additionally, the UART must already be configured.
@@ -194,12 +205,70 @@ divmod_end:     pos
                 rlc r0              ; get the last bit of the quotient
                 mov r2, r0          ; copy the quotient into r2
 
-                pop r0              ; restore the counter reg
-                pop r4              ; restore the dividend
+                pop r4              ; restore the counter reg
+                pop r0              ; restore the divisor
+                ret
+;******************************************************************************
+; r0 holds the int
+; p4 holds the string pointer
+itoa:           push r0
+                push r1
+                push r2
+                push r3
+                push r4
+                push r5
+                push r6
+                push r7
+
+                cpi r0, 0           ; check to see if the int is zero
+                bnz itoa_nz         ; if it isn't, proceed normally
+                ldi r0, 48          ; otherwise create the string "0\0"
+                sri r0, p4
+                ldi r0, 0
+                br itoa_end
+
+itoa_nz:        ldi r1, 10          ; set divisor to 10
+                mov r6, r4
+                mov r7, r5
+
+itoa_loop:      cpi r0, 0           ; check if dividend is zero
+                bz itoa_end
+
+                call divmod
+                adi r3, 48          ; convert remainder to char
+                sri r3, p4          ; store the char
+                mov r0, r2          ; make the quotient the new dividend
+                br itoa_loop
+
+itoa_end:       sri r0, p4          ; store the null char
+                api p4, -2          ; now p4 points to the last non-null char
+
+itoa_flip:      cmp r7, r5          ; reverse the string
+                bc itoa_ret
+                cmp r6, r4
+                bc itoa_ret
+
+                ldr r0, p6, 0
+                ldr r1, p4, 0
+                str r0, p4, 0
+                str r1, p6, 0
+
+                api p6, 1
+                api p4, -1
+                br itoa_flip
+
+itoa_ret:       pop r7
+                pop r6
+                pop r5
+                pop r4
+                pop r3
+                pop r2
+                pop r1
+                pop r0
                 ret
 ;******************************************************************************
                 .data
-text:           .string "                                "
+text:           .string "    "
 prompt:         .string "> "
 you:            .string "You entered: "
 yes:            .string "yes\n"
