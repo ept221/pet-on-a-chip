@@ -14,8 +14,8 @@ main:           ldi r0, 8
                 mov r12, r14            ; setup the frame pointer
                 mov r13, r15
 
-                ldi r2, text[l]
-                ldi r3, text[h]
+                ldi r4, text[l]
+                ldi r5, text[h]
                 call atoi
 
                 ldi r4, foo[l]
@@ -306,33 +306,32 @@ itoa_ret:       pop r7
                 ret
 ;******************************************************************************
 ; r0 will hold the result
-; p2 holds the pointer to the string
+; p4 holds the pointer to the string
 atoi:           push r1
                 push r2
                 push r3
                 push r4
+                push r5
+                push r6
 
                 ldi r0, 0               ; initilize the result
                 ldi r1, 10              ; initilize the multiplier
 
-atoi_loop:      lri r4, p2
-                cpi r4, 0
-                bz atoi_end
+atoi_loop:      lri r6, p4              ; get a char from the string
+                cpi r6, 0               ; check if it is null
+                bz atoi_end             ; if it is, finish
 
-                adi r4, -48             ; convert char to int
+                adi r6, -48             ; convert char to int
 
-                push r2                 ; save the string pointer
-                push r3
+                call mult               ; multiply the current result by 10
+                mov r0, r2              
+                add r0, r6              ; add the int of the char to the result
 
-                call mult
-                mov r0, r2              ; multiply the current result by 10
-                add r0, r4              ; add the int of the char to the result
-
-                pop r3                  ; retrieve the string pointer
-                pop r2
                 br atoi_loop            ; get another char
 
-atoi_end:       pop r4
+atoi_end:       pop r6
+                pop r5
+                pop r4
                 pop r3
                 pop r2
                 pop r1
