@@ -14,13 +14,16 @@ main:           ldi r0, 8
                 mov r12, r14            ; setup the frame pointer
                 mov r13, r15
 
-                in r0, uart_baud
-                ldi r4, text[l]
-                ldi r5, text[h]
-                call itoa
-
                 ldi r2, text[l]
                 ldi r3, text[h]
+                call atoi
+
+                ldi r4, foo[l]
+                ldi r5, foo[h]
+                call itoa
+
+                ldi r2, foo[l]
+                ldi r3, foo[h]
                 call print_str
 
 
@@ -172,6 +175,41 @@ cmp_str_ret:    pop r5
                 pop r0
                 ret
 ;******************************************************************************
+; r0 is the multiplicand
+; r1 is the multiplier
+; r2 and r3 will hold the results
+        
+mult:           push r0
+                push r1
+                push r4
+                push r5
+
+                ldi r5, 8               ; counter
+                ldi r2, 0               ; initilize the result to zero
+                ldi r3, 0
+                ldi r4, 0               ; initilize the extended multiplicand to zero
+
+mult_loop:      cpi r5, 0               ; check if we have completed 8 iterations
+                bz mult_end
+
+                srl r1                  ; shift the multiplier to the right
+                bnc mult_shift          ; don't add if the lsb was zero
+
+                add r2, r0              ; add the multiplicand to the result
+                adc r3, r4
+
+mult_shift:     sll r0                  ; shift the multiplicand to the left
+                rlc r4
+                
+                adi r5, -1              ; decriment the counter
+                br mult_loop
+
+mult_end:       pop r5
+                pop r4
+                pop r1
+                pop r0
+                ret
+;******************************************************************************
 ; r0 holds the dividend
 ; r1 holds the divisor
 ; r2 holds the quotient
@@ -267,8 +305,42 @@ itoa_ret:       pop r7
                 pop r0
                 ret
 ;******************************************************************************
+; r0 will hold the result
+; p2 holds the pointer to the string
+atoi:           push r1
+                push r2
+                push r3
+                push r4
+
+                ldi r0, 0               ; initilize the result
+                ldi r1, 10              ; initilize the multiplier
+
+atoi_loop:      lri r4, p2
+                cpi r4, 0
+                bz atoi_end
+
+                adi r4, -48             ; convert char to int
+
+                push r2                 ; save the string pointer
+                push r3
+
+                call mult
+                mov r0, r2              ; multiply the current result by 10
+                add r0, r4              ; add the int of the char to the result
+
+                pop r3                  ; retrieve the string pointer
+                pop r2
+                br atoi_loop            ; get another char
+
+atoi_end:       pop r4
+                pop r3
+                pop r2
+                pop r1
+                ret
+;******************************************************************************
                 .data
-text:           .string "    "
+text:           .string "134"
+foo:            .string "    "
 prompt:         .string "> "
 you:            .string "You entered: "
 yes:            .string "yes\n"
