@@ -22,8 +22,8 @@
         ldi r0, 103
         out r0, uart_baud       ; set the baud rate to 9600
 
-        ldi r0, 0xff
-        out r0, dir_reg         ; Set the entire i/o port to output
+        ldi r0, 0b11111
+        out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
 
 poll:   in r0, uart_ctrl
         ani r0, 1

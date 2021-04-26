@@ -2,44 +2,65 @@
                 .define uart_baud, 0x0A
                 .define uart_ctrl, 0x0B
                 .define uart_buffer, 0x0C
+
+                .define dir_reg, 0x00
+        		.define port_reg, 0x01
+        		.define pin_reg, 0x02
+
+                .define newline, 10
 ;******************************************************************************         
                 .code
 
 main:           ldi r0, 8
                 out r0, uart_baud       ; set the baud rate to 115200
 
+                ldi r0, 0b11111
+        		out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
+
                 ldi r14, 0xff           ; setup the stack pointer
                 ldi r15, 0x00
 
-                mov r12, r14            ; setup the frame pointer
-                mov r13, r15
-
-
-                ldi r2, text[l]
-                ldi r3, text[h]
+                ldi r2, welcome[l]		; print the welcome
+                ldi r3, welcome[h]
                 call print_str
 
-                ldi r2, buff[l]
-                ldi r3, buff[h]
+loop:           ldi r2, prompt[l]		; print the prompt
+                ldi r3, prompt[h]
                 call print_str
 
-                ldi r4, text[l]
-                ldi r5, text[h]
-                call atoi
+				ldi r0, 11				; get user input
+				ldi r2, buffer[l]
+				ldi r3, buffer[h]
+				call get_str
 
-                ldi r4, buff[l]
-                ldi r5, buff[h]
-                call itoa
+strip:			lri r0, p2 				; look for the newline
+				cpi r0, newline
+				bnz strip
 
-                ldi r2, text[l]
-                ldi r3, text[h]
-                call print_str
+				api p2, -1				; point to the newline
+				ldi r0, 0
+				str r0, p2, 0			; overwrite the newline with a null
 
-                ldi r2, buff[l]
-                ldi r3, buff[h]
-                call print_str
+				ldi r4, buffer[l]		; convert the string to an int
+				ldi r5, buffer[h]
+				call atoi
 
-                hlt
+				out r0, port_reg		; write the output to the i/o port
+				br loop 				; go get another input
+
+;******************************************************************************
+; print char prints a char over the UART. The char must be placed in r0.
+; Additionally the UART must already be configured.
+print_char:		push r1
+
+print_char_p:	in r1, uart_ctrl
+				ani r1, 0
+				bz print_char_p
+
+				out r0, uart_buffer
+
+				pop r1
+				ret
 ;******************************************************************************
 ; print_str prints a string over the UART. A pointer to the string must be in
 ; the register pair p2. Additionally, the UART must already be configured.
@@ -332,9 +353,6 @@ atoi_sane:      pop r6
                 ret
 ;******************************************************************************
                 .data
-text:           .string "98k"
+welcome:        .string "Welcome to Pet on a Chip!\nType a number to write to the i/o port.\n"
 prompt:         .string "> "
-you:            .string "You entered: "
-yes:            .string "yes\n"
-no:             .string "no\n"
-buff:            .string "      "
+buffer:         .string "           "
