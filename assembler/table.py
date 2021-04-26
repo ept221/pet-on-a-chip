@@ -131,6 +131,7 @@ drct_m = {
 
 drct_s = {
 	'.STRING',
+	'.OSTRING',
 }
 
 registers = {

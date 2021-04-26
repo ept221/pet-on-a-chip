@@ -453,6 +453,22 @@ def store_string(arg, symbols, code, line):
         code.write_data(line,format(ord(char),'02X'))
     code.write_data(line,format(0,'02X'))
     return 1
+
+def store_open_string(arg, symbols, code, line):
+    if(code.segment != "data"):
+        error("Directive must be within data segment!",line)
+        return 0
+
+    for char in arg:
+        if(int(ord(char)) > 128):
+            error("Unsupported character in string: " + str(char),line)
+            return 0
+
+    new_str = bytes(arg,"utf-8").decode("unicode_escape")
+
+    for char in new_str:
+        code.write_data(line,format(ord(char),'02X'))
+    return 1
 ##############################################################################################################
 directives = {
     # Format:
@@ -464,7 +480,8 @@ directives = {
     ".ORG":  org,
     ".DEFINE": define,
     ".DB":  db,
-    ".STRING": store_string
+    ".STRING": store_string,
+    ".OSTRING": store_open_string,
 }
 ##############################################################################################################
 def parse_drct(tokens, symbols, code, line):
@@ -1188,7 +1205,7 @@ def second_pass(symbols, code):
                     instruction = code_line[4]
                     if(numb < -256 or numb > 255):
                         error("Offset must be >= -256 and <= 255.",line)
-                        return er
+                        return 0
                     else:
                         if((numb + int(code_line[2], 16)) < 0):
                             error("Instruction branches below address 0", line)

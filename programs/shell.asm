@@ -4,8 +4,8 @@
                 .define uart_buffer, 0x0C
 
                 .define dir_reg, 0x00
-        		.define port_reg, 0x01
-        		.define pin_reg, 0x02
+                .define port_reg, 0x01
+                .define pin_reg, 0x02
 
                 .define newline, 10
 ;******************************************************************************         
@@ -15,52 +15,124 @@ main:           ldi r0, 8
                 out r0, uart_baud       ; set the baud rate to 115200
 
                 ldi r0, 0b11111
-        		out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
+                out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
 
-                ldi r14, 0xff           ; setup the stack pointer
-                ldi r15, 0x00
+                ldi r14, 0x00           ; setup the stack pointer
+                ldi r15, 0x07
 
-                ldi r2, welcome[l]		; print the welcome
+                ldi r2, welcome[l]      ; print the welcome
                 ldi r3, welcome[h]
                 call print_str
 
-loop:           ldi r2, prompt[l]		; print the prompt
+loop:           ldi r2, prompt[l]       ; print the prompt
                 ldi r3, prompt[h]
                 call print_str
 
-				ldi r0, 11				; get user input
-				ldi r2, buffer[l]
-				ldi r3, buffer[h]
-				call get_str
+                ldi r0, 11              ; get user input
+                ldi r2, buffer[l]
+                ldi r3, buffer[h]
+                call get_str
+                call strip_str          ; strip the string
 
-strip:			lri r0, p2 				; look for the newline
-				cpi r0, newline
-				bnz strip
+                ldi r4, cmd_hlp[l]      ; if "h" run help
+                ldi r5, cmd_hlp[h]
+                call str_cmp
+                cpi r6, 0
+                bz help
 
-				api p2, -1				; point to the newline
-				ldi r0, 0
-				str r0, p2, 0			; overwrite the newline with a null
+                ldi r4, cmd_peek[l]     ; if "peek" run peek
+                ldi r5, cmd_peek[h]
+                call str_cmp
+                cpi r6, 0
+                bz peek
 
-				ldi r4, buffer[l]		; convert the string to an int
-				ldi r5, buffer[h]
-				call atoi
+                ldi r4, cmd_poke[l]     ; if "poke" run poke
+                ldi r5, cmd_poke[h]
+                call str_cmp
+                cpi r6, 0
+                bz poke
 
-				out r0, port_reg		; write the output to the i/o port
-				br loop 				; go get another input
+                br loop                 ; else, go get another input
+                ;**************************************************************
+help:           ldi r2, hlp_msg_1[l]    ; print help message
+                ldi r3, hlp_msg_1[h]
+                call print_str
+                br loop
+                ;**************************************************************
+peek:           ldi r2, peek_msg_1[l]   ; prompt for address
+                ldi r3, peek_msg_1[h]
+                call print_str
 
+                ldi r0, 11              ; get user input
+                ldi r2, buffer[l]
+                ldi r3, buffer[h]
+                call get_str
+                call strip_str          ; strip the string
+
+                ldi r4, buffer[l]
+                ldi r5, buffer[h]
+                call atoi               ; parse the int
+
+                mov r2, r0              ; copy the int into the lower reg of the pair
+                ldi r3, 0x10            ; put the i/o offset into the upper reg of the pair
+                ldr r0, p2, 0           ; read the register
+
+                call itoa
+                ldi r2, buffer[l]
+                ldi r3, buffer[h]
+                call print_str          ; print the register's contents
+
+                ldi r0, newline
+                call print_char
+                br loop
+                ;**************************************************************
+poke:           ldi r2, poke_msg_1[l]   ; prompt for address
+                ldi r3, poke_msg_1[h]
+                call print_str
+
+                ldi r0, 11              ; get user input
+                ldi r2, buffer[l]
+                ldi r3, buffer[h]
+                call get_str
+                call strip_str          ; strip the string
+
+                ldi r4, buffer[l]
+                ldi r5, buffer[h]
+                call atoi               ; parse the int
+                mov r6, r0              ; copy the address int to r6
+
+                ldi r2, poke_msg_2[l]   ; prompt for data
+                ldi r3, poke_msg_2[h]
+                call print_str
+
+                ldi r0, 11              ; get user input
+                ldi r2, buffer[l]
+                ldi r3, buffer[h]
+                call get_str
+                call strip_str          ; strip the string
+
+                ldi r4, buffer[l]
+                ldi r5, buffer[h]
+                call atoi               ; parse the int
+
+                mov r2, r6              ; move the address int to the lower reg in the pair
+                ldi r3, 0x10            ; put the i/o offset into the upper reg of the pair
+                str r0, p2, 0           ; write to the register
+
+                br loop
 ;******************************************************************************
 ; print char prints a char over the UART. The char must be placed in r0.
 ; Additionally the UART must already be configured.
-print_char:		push r1
+print_char:     push r1
 
-print_char_p:	in r1, uart_ctrl
-				ani r1, 0
-				bz print_char_p
+print_char_p:   in r1, uart_ctrl
+                ani r1, 2
+                bz print_char_p
 
-				out r0, uart_buffer
+                out r0, uart_buffer
 
-				pop r1
-				ret
+                pop r1
+                ret
 ;******************************************************************************
 ; print_str prints a string over the UART. A pointer to the string must be in
 ; the register pair p2. Additionally, the UART must already be configured.
@@ -153,10 +225,29 @@ get_str_ret:    ldi r4, 0               ; add the null terminator to the string
                 pop r0
                 ret
 ;******************************************************************************
-; cmp_str compares two strings. The first string is pointed to by p2, and the
+; strip_str strips the newline from a string. A pointer to the string must
+; be in register pair p2.
+strip_str:      push r0
+                push r2
+                push r3
+
+strip_str_p:    lri r0, p2              ; look for the newline
+                cpi r0, newline
+                bnz strip_str_p
+
+                api p2, -1              ; point to the newline
+                ldi r0, 0
+                str r0, p2, 0           ; overwrite the newline with a null
+
+                pop r3
+                pop r2
+                pop r0
+                ret
+;******************************************************************************
+; str_cmp compares two strings. The first string is pointed to by p2, and the
 ; second string is pointed to by p4. If the strings are equal r6 is set to 0x00,
 ; otherwise it is set to 0xff
-cmp_str:        push r0
+str_cmp:        push r0
                 push r1
                 push r2
                 push r3
@@ -164,17 +255,17 @@ cmp_str:        push r0
                 push r5
 
                 ldi r6, 0xff
-cmp_str_loop:   lri r0, p2
+str_cmp_loop:   lri r0, p2
                 lri r1, p4
 
                 cmp r0, r1
-                bnz cmp_str_ret
+                bnz str_cmp_ret
                 cpi r0, 0
-                bnz cmp_str_loop
+                bnz str_cmp_loop
 
                 ldi r6, 0
 
-cmp_str_ret:    pop r5
+str_cmp_ret:    pop r5
                 pop r4
                 pop r3
                 pop r2
@@ -353,6 +444,22 @@ atoi_sane:      pop r6
                 ret
 ;******************************************************************************
                 .data
-welcome:        .string "Welcome to Pet on a Chip!\nType a number to write to the i/o port.\n"
+welcome:        .ostring "Welcome to Pet on a Chip!\n"
+                .string  "Type \"h\" for help.\n"
+
 prompt:         .string "> "
+
+cmd_peek:       .string "peek"
+cmd_poke:       .string "poke"
+cmd_hlp:        .string "h"
+
+hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
+                .ostring "Type \"poke\" to write to an i/o register\n"
+                .string  "Type \"h\" to display this message\n"
+
+peek_msg_1:     .string "Enter an i/o address to read from:\n> "
+
+poke_msg_1:     .string "Enter an i/o address to write to:\n> "
+poke_msg_2:     .string "Enter the data to write:\n> "
+
 buffer:         .string "           "
