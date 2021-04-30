@@ -195,7 +195,7 @@ Supported operations inside expressions include addition and subtraction. The lo
 ; 0x0001                        0b0000000011110000       HLT
 ```
 ```assembly
-; Example resulution in two passes with $
+; Example resolution in two passes with $
         .code
         ldi r0, $
         jmp $ + foo
