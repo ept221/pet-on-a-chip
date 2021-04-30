@@ -135,6 +135,10 @@ Write a ASCII string into data memory. The string is open, which means that it i
         .ostring "Hi! "
         .string  "Bye!"
 
+;*************************************************************************
+; Assembles to the following:
+; Address        Label          Data
+; ------------------------------------------
 ; 0x0000                        0x48
 ; 0x0001                        0x69
 ; 0x0002                        0x21
