@@ -135,14 +135,14 @@ Write a ASCII string into data memory. The string is open, which means that it i
         .ostring "Hi! "
         .string  "Bye!"
 
-; 0x0000                        0x48                                         
-; 0x0001                        0x69                                         
-; 0x0002                        0x21                                         
-; 0x0003                        0x20                                         
-; 0x0004                        0x42                                         
-; 0x0005                        0x79                                         
-; 0x0006                        0x65                                         
-; 0x0007                        0x21                                         
+; 0x0000                        0x48
+; 0x0001                        0x69
+; 0x0002                        0x21
+; 0x0003                        0x20
+; 0x0004                        0x42
+; 0x0005                        0x79
+; 0x0006                        0x65
+; 0x0007                        0x21
 ; 0x0008                        0x00
 ```
 
