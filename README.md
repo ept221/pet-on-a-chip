@@ -218,16 +218,16 @@ Supported operations inside expressions include addition and subtraction. The lo
 ; 0x0006                        0b0000000011110000       HLT
 ```
 ## The Development Process
-Run
+To perform synthesis and place-and-route, run:
 ```bash
 make synth
 make pnr
 ```
-to run synthesis and place-and-route. To assemble a demo program, run
+To assemble a demo program, run:
 ```bash
 ./assemble programs/shell.asm
 ```
-Then connect the board to your computer and run
+To upload configuration bitstream to the board, run:
 ```bash
 ./upload shell
 ```
