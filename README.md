@@ -49,7 +49,7 @@ Label definitions may be any string ending with a colon, as long as the string i
         .code
         ldi r0, 10
 loop:   adi r0, -1
-        jnz loop
+        bnz loop
         hlt
 ```
 
@@ -61,7 +61,7 @@ Sets the origin to the given address. Only forward movement of the origin is per
         .code
         ldi r0, 1
         out r0, 0
-        jmp foo
+        br foo
         
         .org 0x0B
 foo:    out r0, 1
@@ -71,12 +71,11 @@ foo:    out r0, 1
 ; Assembles to the following:
 ; Address        Label          Code                     Source
 ; ------------------------------------------------------------------------
-; 0x0000                        0b0000000000010001       LDI R0, 1
-; 0x0001                        0b0000000000000100       OUT R0, 0
-; 0x0002                        0b0000000010111000       JMP FOO
-; 0x0003                        0b0000000000001011
-; 0x000B         FOO:           0b0000000000010100       OUT R0, 1
-; 0x000C                        0b0000000011110000       HLT
+; 0x0000                        0b0000000000010001       LDI R0, 1                                         
+; 0x0001                        0b0000000000001001       OUT R0, 0                                         
+; 0x0002                        0b0000000010011110       BR FOO                                            
+; 0x000B         FOO:           0b0000000000011001       OUT R0, 1                                         
+; 0x000C                        0b1111111111111111       HLT 
 ```
 
 #### .db
@@ -126,6 +125,25 @@ Writes a null terminated ASCII string into data memory. Double quotes and backsl
 ; 0x0012                        0x21
 ; 0x0013                        0x22
 ; 0x0014                        0x00
+```
+
+#### .ostring
+Write a ASCII string into data memory. The string is open, which means that it is not null terminated. This is useful if you have a long string that you want to split up into multiple lines in the assembly source file.
+
+```assembly
+        .data
+        .ostring "Hi! "
+        .string  "Bye!"
+
+; 0x0000                        0x48                                         
+; 0x0001                        0x69                                         
+; 0x0002                        0x21                                         
+; 0x0003                        0x20                                         
+; 0x0004                        0x42                                         
+; 0x0005                        0x79                                         
+; 0x0006                        0x65                                         
+; 0x0007                        0x21                                         
+; 0x0008                        0x00
 ```
 
 #### .define
