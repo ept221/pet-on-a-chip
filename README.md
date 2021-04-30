@@ -227,7 +227,7 @@ To assemble a demo program, run:
 ```bash
 ./assemble programs/shell.asm
 ```
-To upload configuration bitstream to the board, run:
+To upload the configuration bitstream for the previously assembled program, run:
 ```bash
 ./upload shell
 ```
