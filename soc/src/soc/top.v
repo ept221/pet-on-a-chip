@@ -14,8 +14,7 @@ module top(input wire clk,
            output wire B,
            output wire servo_pin,
            output wire trig,
-           input wire echo,
-           input wire excom
+           input wire echo
 );
 
     //***************************************************************
@@ -98,8 +97,6 @@ module top(input wire clk,
 
                                    .trig(trig),
                                    .echo(echo),
-
-                                   .excom(excom),
 
                                    .h_sync(h_sync),
                                    .v_sync(v_sync),

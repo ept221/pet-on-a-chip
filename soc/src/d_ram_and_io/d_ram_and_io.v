@@ -34,9 +34,6 @@ module d_ram_and_io(input wire clk,
                     output wire trig,
                     input wire echo,
 
-                    // For EXCOM
-                    input wire excom,
-
                     // For gpu
                     output wire h_sync,
                     output wire v_sync,
@@ -65,7 +62,7 @@ module d_ram_and_io(input wire clk,
             d_ram_r_en = 0;
             io_w_en = w_en;
             io_r_en = r_en;
-            dout = gpio_dout | counter_timer_dout | uart_dout | gpu_dout | motor_controller_dout | servo_dout | sonar_dout | excom_dout;
+            dout = gpio_dout | counter_timer_dout | uart_dout | gpu_dout | motor_controller_dout | servo_dout | sonar_dout;
         end
         else begin
             d_ram_w_en = 0;
@@ -197,19 +194,7 @@ module d_ram_and_io(input wire clk,
                    .dout(sonar_dout),
                    .trig(trig),
                    .echo(echo)
-    );
-    //***********************************************************************************
-    // excom controller at: 0x1014
-    wire [7:0] excom_dout;
-    excom #(.EXCOM_CONTROLLER_ADDRESS(8'h14))
-        excom_inst(.clk(clk),
-                   .din(din),
-                   .address(address[7:0]),
-                   .w_en(io_w_en),
-                   .r_en(io_r_en),
-                   .dout(excom_dout),
-                   .excom(excom)
-    );       
+    );    
     //***********************************************************************************
     // gpu from: 0x1080, 0x2000-0x2960
     wire [7:0] gpu_dout;

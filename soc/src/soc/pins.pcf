@@ -32,9 +32,6 @@ set_io servo_pin F2
 set_io trig A7
 set_io echo C8
 
-# Excom
-set_io excom D10
-
 # GPU
 set_io h_sync J8
 set_io v_sync H9
