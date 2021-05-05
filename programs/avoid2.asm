@@ -156,7 +156,7 @@ poll2:  in r0, sonar_control
         pop r1
         ret
 ;******************************************************************************
-        ; r0 holds the delay in tenths of a second
+; r0 holds the delay in tenths of a second
 delay:  push r0
         push r1
 
