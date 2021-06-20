@@ -181,8 +181,8 @@ module motor_controller(input wire clk,
 	always @(posedge clk) begin
 		edge_delay <= d1;
 		if(strobe) begin
-			rpm_0 <= {0,full_rpm_0[15:9]};
-			rpm_1 <= {0,full_rpm_1[15:9]};
+			rpm_0 <= {1'b0,full_rpm_0[15:9]};
+			rpm_1 <= {1'b0,full_rpm_1[15:9]};
 			encoder_count_0 <= 0;
 			encoder_count_1 <= 0;
 			if(~next_0[8]) begin
