@@ -1344,15 +1344,12 @@ except AttributeError:
 code = Code()
 symbols = Symbol()
 
-discription = 'An assembler for tinySoC'
-p = argparse.ArgumentParser(description = discription)
+description = 'An assembler for tinySoC'
+p = argparse.ArgumentParser(description = description)
 p.add_argument("source", help="source file")
 p.add_argument("-o", "--out", help="output file name (stdout, if not specified)")
 p.add_argument("-d", "--debug", help="outputs debugging information instead of hex images", action="store_true")
 args = p.parse_args()
-
-if(args.source):
-    outFile = args.source
 
 parse(read(args.source),symbols,code)
 output(code, (args.out if args.out else ""), args)
