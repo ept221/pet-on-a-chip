@@ -235,3 +235,7 @@ To upload the configuration bitstream for the previously assembled program, run:
 ```bash
 ./upload shell
 ```
+## Requierments
+Yosys for synthisis
+nextpnr for place and route
+icestorm tools for icebram and iceprog
