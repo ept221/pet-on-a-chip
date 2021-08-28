@@ -67,7 +67,7 @@ main:   in r0, pin_reg                  ; wait for button to be pressed
         ani r0, 0b00100000
         bnz main
 
-loop:   ldi r0, 40                      ; move forwards
+loop:   ldi r0, 60                      ; move forwards
         out r0, motor_pwm0
         out r0, motor_pwm1
         ldi r0, 0b00000101
