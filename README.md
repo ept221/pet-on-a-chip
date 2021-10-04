@@ -55,6 +55,12 @@ loop:   adi r0, -1
 
 ### Directives
 
+#### .code
+Specifies that the following lines are code to be assembled and placed in instruction memory.
+
+#### .data
+Specifies that the following lines are data to be placed in data memory.
+
 #### .org
 Sets the origin to the given address. Only forward movement of the origin is permitted.
 ```assembly
