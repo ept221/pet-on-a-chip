@@ -1,5 +1,5 @@
 # Pet On A Chip
-Pet on a chip is a project which condenses the control logic the robot described in Frank DaCosta's book "How to Build Your Own Working Robot Pet" onto a single FPGA.
+Pet on a chip is a project which condenses the control logic the robot described in Frank DaCosta's book "How to Build Your Own Working Robot Pet" onto a single FPGA. More details, pictures, and videos can be found on this [blog post](https://ezrasrobots.wordpress.com/2021/07/07/pet-on-a-chip/).
 
 ## tinySoC
 tinySoC is a small system on a chip responsible for controlling the robot. It consists of an 8-bit CPU, an 80 column VGA graphics processor, GPIO, counter/timer peripherals, and a UART, all implemented on an iCE40 FPGA. It also comes with an assembler and utilities for loading programs into the chip's internal block memory without having to rerun synthesis and place-and-route.
