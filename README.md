@@ -173,7 +173,7 @@ Equates a symbol with a number.
 ```
 
 ### Expressions
-Anytime an instruction or directive requires a numerical argument, an expression can be used.
+Any time an instruction or directive requires a numerical argument, an expression can be used.
 Supported operations inside expressions include addition and subtraction. The location counter $ is also made available. If an instruction is two bytes long then $ refers to the address of the second byte. Expressions may contain symbols, but must resolve within two passes of the assembler, and if used for directive arguments, must resolve in a single pass.
 
 ```assembly
