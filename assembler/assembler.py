@@ -471,10 +471,6 @@ def store_open_string(arg, symbols, code, line):
     return 1
 ##############################################################################################################
 directives = {
-    # Format:
-    # [function, min_args, max_args, name]
-    # -1 means no bound
-
     ".CODE": setCodeSegment,
     ".DATA": setDataSegment,
     ".ORG":  org,
