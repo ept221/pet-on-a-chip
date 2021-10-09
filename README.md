@@ -235,7 +235,7 @@ make pnr
 ```
 To assemble a demo program, run:
 ```bash
-./assemble programs/shell.asm
+./assemble programs/shell.asm shell
 ```
 To upload the configuration bitstream for the previously assembled program, run:
 ```bash
