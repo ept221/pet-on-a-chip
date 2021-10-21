@@ -462,4 +462,4 @@ peek_msg_1:     .string "Enter an i/o address to read from:\n> "
 poke_msg_1:     .string "Enter an i/o address to write to:\n> "
 poke_msg_2:     .string "Enter the data to write:\n> "
 
-buffer:         .string "           "
+buffer:         .ds 11

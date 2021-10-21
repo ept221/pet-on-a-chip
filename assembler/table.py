@@ -119,6 +119,7 @@ drct_0 = {
 
 drct_1 = {
 	'.ORG',
+	'.DS',
 }
 
 drct_2 = {

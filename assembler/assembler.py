@@ -397,14 +397,14 @@ def org(arg, symbols, code, line):
     else:
         if(code.segment == "code"):
             if(arg > preferences.i_ram_len):
-                error("Cannot set code origin past " + format(preferences.i_ram_len, '04X') + ".",line)
+                error("Cannot set code origin past " + format(preferences.i_ram_len, '04X') + "!",line)
                 return 0
             code.code_address = arg
             if(code.code_label):
                 symbols.labelDefs[code.code_label[:-1]] = '{0:0{1}X}'.format(address,4)
         else:
             if(arg > preferences.d_ram_len):
-                error("Cannot set data origin past " + format(preferences.d_ram_len, '02X') + ".",line)
+                error("Cannot set data origin past " + format(preferences.d_ram_len, '02X') + "!",line)
                 return 0
             code.data_address = arg
             if(code.data_label):
@@ -435,6 +435,22 @@ def db(args, symbols, code, line):
 
         code.write_data(line, format(arg, '02X'))
 
+    return 1
+
+def ds(arg, symbols, code, line):
+    if(code.segment != "data"):
+        error("Directive must be within data segment!",line)
+        return 0
+
+    if(arg <= 0):
+        error("Argument must be positive!",line)
+        return 0
+    if(arg + code.data_address > preferences.d_ram_len):
+        error("Cannot define space past " + format(preferences.d_ram_len, '02X') + ".",line)
+        return 0
+
+    code.data_address += arg
+    code.data_label = ""
     return 1
 
 def store_string(arg, symbols, code, line):
@@ -476,6 +492,7 @@ directives = {
     ".ORG":  org,
     ".DEFINE": define,
     ".DB":  db,
+    ".DS":  ds,
     ".STRING": store_string,
     ".OSTRING": store_open_string,
 }
