@@ -100,7 +100,7 @@ Writes one or more data bytes sequentially into data memory.
 ```
 
 #### .ds
-Defines a block of space in the data memory
+Defines a block of space in the data memory. This is useful for allocating room for a buffer.
 ```assembly
         .data
         .db 5
