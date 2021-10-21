@@ -401,14 +401,14 @@ def org(arg, symbols, code, line):
                 return 0
             code.code_address = arg
             if(code.code_label):
-                symbols.labelDefs[lbl[:-1]] = '{0:0{1}X}'.format(address,4)
+                symbols.labelDefs[code.code_label[:-1]] = '{0:0{1}X}'.format(address,4)
         else:
             if(arg > preferences.d_ram_len):
                 error("Cannot set data origin past " + format(preferences.d_ram_len, '02X') + ".",line)
                 return 0
             code.data_address = arg
             if(code.data_label):
-                symbols.labelDefs[lbl[:-1]] = '{0:0{1}X}'.format(address,4)
+                symbols.labelDefs[code.data_label[:-1]] = '{0:0{1}X}'.format(address,4)
     return 1
 ##############################################################################################################
 def define(args, symbols, code, line):
@@ -1132,7 +1132,7 @@ def parse_line(tokens, symbols, code, line):
     # check to see if we have any
     # tokens left
     if(len(tokens)):   
-        error("Bad Final Identifier(s)! " + str(tokens),line)
+        error("Bad Final Identifier(s)!",line)
         return er
     ###############################
     # everything's good
