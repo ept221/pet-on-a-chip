@@ -99,6 +99,22 @@ Writes one or more data bytes sequentially into data memory.
 ; 0x0002                        0x73
 ```
 
+#### .ds
+Defines a block of space in the data memory
+```assembly
+        .data
+        .db 5
+        .ds
+        .db 7
+
+;*************************************************************************
+; Assembles to the following:
+; Address        Label          Data
+; ------------------------------------------
+; 0x0000                        0x05                                         
+; 0x0004                        0x07 
+```
+
 #### .string
 Writes a null terminated ASCII string into data memory. Double quotes and backslashes must be escaped with a backslash.
 
