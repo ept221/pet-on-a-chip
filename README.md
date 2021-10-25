@@ -104,7 +104,7 @@ Defines a block of space in the data memory. This is useful for allocating room 
 ```assembly
         .data
         .db 5
-        .ds
+        .ds 3
         .db 7
 
 ;*************************************************************************
