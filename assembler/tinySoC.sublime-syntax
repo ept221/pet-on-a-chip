@@ -1,0 +1,69 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+file_extensions:
+  - asm
+scope: source.tinySoC
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  prototype:
+    - include: comments
+
+  main:
+    # The main context is the initial starting point of our syntax.
+    # Include other contexts from here (or specify them directly).
+    - include: instructions
+    - include: numbers
+    - include: strings
+    - include: lables
+    - include: directives
+
+  lables:
+    - match: '\b[^\s]+\b:'
+      scope: entity.name.label
+
+  instructions:
+    - match: '(?i)\b(LDI|ANI|ORI|XOI|ADI|ACI|CPI|IN|OUT|MOV|AND|OR|XOR|ADD|ADC|CMP|SUB|SBB|SRI|SRD|LRI|LRD|STR|LDR|API|BR|BC|BNC|BZ|BNZ|BN|BNN|SLL|SRL|SRA|RLC|RRC|NOT|POP|PUSH|JMPI|JCI|JNCI|JZI|JNZI|JNI|JNNI|JMP|JC|JNC|JZ|JNZ|JN|JNN|CALL|CC|CNC|CZ|CNN|RET|RC|RNC|RZ|RNZ|RN|RNN|PUS|POS|NOP|HLT|SSR|CSR|MVP)\b'
+      scope: keyword
+    - match: '\b(r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15)\b'
+      scope: variable.parameter
+
+  directives:
+    - match: '\.\b(code|data|org|ds|define|db|string|ostring)\b'
+      scope: storage.modifier
+
+  numbers:
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric
+    - match: '(?i)\b0x[0-9a-f.]+\b'
+      scope: constant.numeric
+    - match: '(?i)\b0b[01.]+\b'
+      scope: constant.numeric
+
+  strings:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character.
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push: inside_string
+
+  inside_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double
+    - match: '\.'
+      scope: constant.character.escape
+    - match: '"'
+      scope: punctuation.definition.string.end
+      pop: true
+
+  comments:
+    # Comments begin with a '//' and finish at the end of the line.
+    - match: ';'
+      scope: punctuation.definition.comment
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: comment.line.double-slash
+        - match: $\n?
+          pop: true
