@@ -27,7 +27,7 @@ contexts:
   instructions:
     - match: '(?i)\b(LDI|ANI|ORI|XOI|ADI|ACI|CPI|IN|OUT|MOV|AND|OR|XOR|ADD|ADC|CMP|SUB|SBB|SRI|SRD|LRI|LRD|STR|LDR|API|BR|BC|BNC|BZ|BNZ|BN|BNN|SLL|SRL|SRA|RLC|RRC|NOT|POP|PUSH|JMPI|JCI|JNCI|JZI|JNZI|JNI|JNNI|JMP|JC|JNC|JZ|JNZ|JN|JNN|CALL|CC|CNC|CZ|CNN|RET|RC|RNC|RZ|RNZ|RN|RNN|PUS|POS|NOP|HLT|SSR|CSR|MVP)\b'
       scope: keyword
-    - match: '\b(?i)(r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15)\b'
+    - match: '\b(?i)(r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15|p0|p2|p4|p6|p8|p10|p12|p14)\b'
       scope: variable.parameter
 
   directives:
@@ -37,9 +37,9 @@ contexts:
   numbers:
     - match: '\b(-)?[0-9.]+\b'
       scope: constant.numeric
-    - match: '(?i)\b0x[0-9a-f.]+\b'
+    - match: '(?i)\b(-)?0x[0-9a-f.]+\b'
       scope: constant.numeric
-    - match: '(?i)\b0b[01.]+\b'
+    - match: '(?i)\b(-)?0b[01.]+\b'
       scope: constant.numeric
 
   strings:
