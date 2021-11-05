@@ -52,7 +52,7 @@ contexts:
   inside_string:
     - meta_include_prototype: false
     - meta_scope: string.quoted.double
-    - match: '\.'
+    - match: '\\.'
       scope: constant.character.escape
     - match: '"'
       scope: punctuation.definition.string.end
