@@ -27,11 +27,11 @@ contexts:
   instructions:
     - match: '(?i)\b(LDI|ANI|ORI|XOI|ADI|ACI|CPI|IN|OUT|MOV|AND|OR|XOR|ADD|ADC|CMP|SUB|SBB|SRI|SRD|LRI|LRD|STR|LDR|API|BR|BC|BNC|BZ|BNZ|BN|BNN|SLL|SRL|SRA|RLC|RRC|NOT|POP|PUSH|JMPI|JCI|JNCI|JZI|JNZI|JNI|JNNI|JMP|JC|JNC|JZ|JNZ|JN|JNN|CALL|CC|CNC|CZ|CNN|RET|RC|RNC|RZ|RNZ|RN|RNN|PUS|POS|NOP|HLT|SSR|CSR|MVP)\b'
       scope: keyword
-    - match: '\b(r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15)\b'
+    - match: '\b(?i)(r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15)\b'
       scope: variable.parameter
 
   directives:
-    - match: '\.\b(code|data|org|ds|define|db|string|ostring)\b'
+    - match: '\.(?i)\b(code|data|org|ds|define|db|string|ostring)\b'
       scope: storage.modifier
 
   numbers:
