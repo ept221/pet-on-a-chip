@@ -32,6 +32,10 @@ module control(input wire clk,
                output reg interrupt_1_clr,
                output reg interrupt_2_clr,
                output reg interrupt_3_clr,
+               input wire interrupt_vect_0,
+               input wire interrupt_vect_1,
+               input wire interrupt_vect_2,
+               input wire interrupt_vect_3,
                output wire reset_out
 );    
     //****************************************************************************************************
@@ -91,16 +95,16 @@ module control(input wire clk,
     // Interrupt vectoring
     always @(*) begin
         if(interrupt_0) begin
-            interruptVector = 16'd20;
+            interruptVector = interrupt_vect_0;
         end
         else if(interrupt_1) begin
-            interruptVector = 16'd30;
+            interruptVector = interrupt_vect_1;
         end
         else if(interrupt_2) begin
-            interruptVector = 16'd40;
+            interruptVector = interrupt_vect_2;
         end
         else if(interrupt_3) begin
-            interruptVector = 16'd50;
+            interruptVector = interrupt_vect_3;
         end
         else begin
             interruptVector = 16'd0;

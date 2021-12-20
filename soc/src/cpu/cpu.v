@@ -19,6 +19,10 @@ module cpu(input wire clk,
            output wire interrupt_1_clr,
            output wire interrupt_2_clr,
            output wire interrupt_3_clr,
+           output wire interrupt_vect_0,
+           output wire interrupt_vect_1,
+           output wire interrupt_vect_2,
+           output wire interrupt_vect_3,
            output wire reset_out
 );
     //***************************************************************
@@ -66,7 +70,10 @@ module cpu(input wire clk,
                   .interrupt_1_clr(interrupt_1_clr),
                   .interrupt_2_clr(interrupt_2_clr),
                   .interrupt_3_clr(interrupt_3_clr),
-
+                  .interrupt_vect_0(interrupt_vect_0),
+                  .interrupt_vect_1(interrupt_vect_1),
+                  .interrupt_vect_2(interrupt_vect_2),
+                  .interrupt_vect_3(interrupt_vect_3),
                   .reset_out(reset_out)
     );
     //***************************************************************
