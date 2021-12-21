@@ -179,7 +179,7 @@ module d_ram_and_io(input wire clk,
                    .servo_pin(servo_pin)
     );
     //***********************************************************************************
-    // sonar controller at: 0x1012
+    // sonar controller from: 0x1012 - 0x1013
     wire [7:0] sonar_dout;
     sonar #(.SONAR_ADDRESS(8'h12))
         sonar_inst(.clk(clk),
@@ -192,9 +192,9 @@ module d_ram_and_io(input wire clk,
                    .echo(echo)
     );
     //***********************************************************************************
-    // pic at 0x1013 - 0x101B
+    // pic at 0x1014 - 0x101C
     wire [7:0] pic_dout;
-    pic #(.PIC_ADDRESS(8'h13))
+    pic #(.PIC_ADDRESS(8'h14))
         pic_inst(.clk(clk),
                  .din(din),
                  .address(address[7:0]),

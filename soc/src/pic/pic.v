@@ -115,31 +115,31 @@ module pic(input wire clk,
     // if the intAck signal from the CPU is asserted.
     reg [3:0] pending;
     always @(posedge clk) begin
-        if(irq_0) begin
+        if(irq_0 == 1'b1) begin
             pending[0] <= 1'b1;
         end
-        else if(intAck && current == 2'd0) begin
+        else if(intAck == 1'b1 && current == 2'd0) begin
             pending[0] <= 1'b0;
         end
         
-        if(irq_1) begin
+        if(irq_0 == 1'b1) begin
             pending[1] <= 1'b1;
-        end
-        else if(intAck && current == 2'd1) begin
+        end/*
+        else if(intAck == 1'b1 && current == 2'd1) begin
             pending[1] <= 1'b0;
-        end
+        end*/
 
-        if(irq_2) begin
+        if(irq_2 == 1'b1) begin
             pending[2] <= 1'b1;
         end
-        else if(intAck && current == 2'd2) begin
+        else if(intAck == 1'b1 && current == 2'd2) begin
             pending[2] <= 1'b0;
         end
 
-        if(irq_3) begin
+        if(irq_3 == 1'b1) begin
             pending[3] <= 1'b1;
         end
-        else if(intAck && current == 2'd3) begin
+        else if(intAck == 1'b1 && current == 2'd3) begin
             pending[3] <= 1'b0;
         end
     end
