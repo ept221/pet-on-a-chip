@@ -112,8 +112,13 @@ module pic(input wire clk,
     //**********************************************************
     // Latches incoming irqs into the pending register, and also
     // clears the pending bit corresponding to the current irq
-    // if the intAck signal from the CPU is asserted.
+    // if the intAck signal from the CPU is asserted. Also ff an
+    // interrupt is not in progress, start the one pending that
+    // has the highest priority, or the incoming irq with the
+    // highest priority.
     reg [3:0] pending;
+    reg [2:0] current;
+    reg in_progress = 1'b0;
     always @(posedge clk) begin
         //******************************************************
         if(irq_0 == 1'b1) begin
@@ -144,41 +149,46 @@ module pic(input wire clk,
             pending[3] <= 1'b0;
         end
         //******************************************************
+        if(irq_0 == 1'b1 || pending[0] == 1'b1 && in_progress == 1'b0) begin
+            in_progress <= 1'b1;
+            current <= 2'd0;
+        end
+        else if(irq_1 == 1'b1 || pending[1] == 1'b1 && in_progress == 1'b0) begin
+           in_progress <= 1'b1;
+           current <= 2'd1;
+        end
+        else if(irq_2 == 1'b1 || pending[2] == 1'b1 && in_progress == 1'b0) begin
+            in_progress <= 1'b1;
+            current <= 2'd2;
+        end
+        else if(irq_3 == 1'b1 || pending[3] == 1'b1 && in_progress == 1'b0) begin
+            in_progress <= 1'b1;
+            current <= 2'd3;
+        end
     end
     //**********************************************************
-    // Signals the CPU with the pending interrupt of
+    // Signals the CPU with the current interrupt of
     // the highest priority
-
-    // This has a problem. If we have pending[1] as the current one
-    // and we're currently serviceing it in the cpu,
-    // and then pending[0] comes around,
-    // then it will swap out the intvect 
-    reg [2:0] current;
     always @(*) begin
-        if(pending[0]) begin
-            current = 2'd0;
+        if(current == 2'd0 && pending[0] == 1'b1) begin
             interrupt = 1'b1;
             intVect = {vect_0h,vect_0l};
         end
-        else if(pending[1]) begin
-            current = 2'd1;
+        else if(current == 2'd1 && pending[1] == 1'b1) begin
             interrupt = 1'b1;
             intVect = {vect_1h,vect_1l};
         end
-        else if(pending[2]) begin
-            current = 2'd2;
+        else if(current == 2'd2 && pending[2] == 1'b1) begin
             interrupt = 1'b1;
             intVect = {vect_2h,vect_2l};
         end
-        else if(pending[3]) begin
-            current = 2'd3;
+        else if(current == 2'd3 && pending[3] == 1'b1) begin
             interrupt = 1'b1;
             intVect = {vect_3h,vect_3l};
         end
         else begin
-            current = 2'd0;
             interrupt = 1'b0;
-            intVect = {vect_1h,vect_1l};
+            intVect = {vect_0h,vect_0l};
         end
     end
     //**********************************************************
