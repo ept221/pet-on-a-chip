@@ -7,28 +7,36 @@ module vga(input wire clk,
 		   output reg [9:0] y
 );
 
-	parameter HS_START = 640 + 15 - 1;
-	parameter HS_END = 640 + 16 + 96 - 1;
-	parameter VS_START = 480 + 10 - 1;
-	parameter VS_END = 480 + 10 + 2 - 1;
+	localparam H_ACTIVE = 640;
+	localparam H_FP = 15;
+	localparam H_SYNC = 96;
+	localparam H_BP = 48;
+	localparam HS_START = H_ACTIVE + H_FP - 1;
+	localparam HS_END = H_ACTIVE + H_FP + H_SYNC - 1;
+	localparam H_LINE = H_ACTIVE + H_FP + H_SYNC + H_BP;
 
-	parameter HDISP_START = 0;
-	parameter VDISP_START = 0;
+	localparam V_ACTIVE = 480;
+	localparam V_FP = 10;
+	localparam V_SYNC = 2;
+	localparam V_BP = 32;
+	localparam VS_START = V_ACTIVE + V_FP - 1;
+	localparam VS_END = VS_START + V_SYNC;
+	localparam V_LINE = V_ACTIVE + V_FP + V_SYNC + V_BP;
 
-	assign h_sync = ~((x >= HS_START) & (x < HS_END));
-	assign v_sync = ~((y >= VS_START) & (y < VS_END));
+	assign h_sync = ~((x >= HS_START) & (x <= HS_END));
+	assign v_sync = ~((y >= VS_START) & (y <= VS_END));
 
-	assign active = (x < 640 && y < 480);
-	assign blanking_start = (y == 480) && (x == 0);
+	assign active = (x < H_ACTIVE && y < V_ACTIVE);
+	assign blanking_start = (y == V_ACTIVE) && (x == 0);
 
 	always @(posedge clk) begin
 
-		if(x < 799) begin
+		if(x < H_LINE) begin
 			x <= x + 10'd1;
 		end
 		else begin
 			x <= 10'd0;
-			if(y < 524) begin
+			if(y < V_LINE) begin
 				y <= y + 10'd1;
 			end
 			else begin
