@@ -76,7 +76,7 @@ loop2:  in r1, uart_ctrl        ; poll for empty tx buffer
 ;******************************************************************************
         cpi r0, 8               ; check if delete was sent
         bz delete
-        cpi r0, 10
+        cpi r0, 10              ; check to see if a newline was sent
         bz nl
         br normal
         
