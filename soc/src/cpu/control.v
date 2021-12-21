@@ -159,7 +159,7 @@ module control(input wire clk,
                 regFileOutBSelect = {iMemOut[11:9],1'b0};  // Doesn't really matter
                 regFileWriteEnable = 1'b1;
                 regFileAdd = 1'b0;
-                regFileConstSrc = 2'b00;             // Doesn't matter
+                regFileConstSrc = 2'b00;            // Doesn't matter
                 aluSrcASelect = 1'b0;               // From the register file
                 aluSrcBSelect = 2'b10;              // From immediate 8-bit data
                 aluMode = {1'b0,iMemOut[2:0]};

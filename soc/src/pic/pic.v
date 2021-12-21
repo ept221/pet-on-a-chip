@@ -3,6 +3,8 @@ module pic(input wire clk,
            input wire [7:0] din,
            input wire [7:0] address,
            input wire w_en,
+           input wire r_en,
+           output reg [7:0] dout,
 
            // To the cpu
            output reg interrupt,
@@ -42,41 +44,68 @@ module pic(input wire clk,
                 if(w_en) begin
                     vect_0l <= din;
                 end
+                if(r_en) begin
+                    dout <= vect_0l;
+                end
             end
             VECT_0L: begin
                 if(w_en) begin
                     vect_0h <= din;
+                end
+                if(r_en) begin
+                    dout <= vect_0h;
                 end
             end
             VECT_1L: begin
                 if(w_en) begin
                     vect_1l <= din;
                 end
+                if(r_en) begin
+                    dout <= vect_1l;
+                end
             end
             VECT_1H: begin
                 if(w_en) begin
                     vect_1h <= din;
+                end
+                if(r_en) begin
+                    dout <= vect_1h;
                 end
             end
             VECT_2L: begin
                 if(w_en) begin
                     vect_2l <= din;
                 end
+                if(r_en) begin
+                    dout <= vect_2l;
+                end
             end
             VECT_2H: begin
                 if(w_en) begin
                     vect_2h <= din;
+                end
+                if(r_en) begin
+                    dout <= vect_2h;
                 end
             end
             VECT_3L: begin
                 if(w_en) begin
                     vect_3l <= din;
                 end
+                if(r_en) begin
+                    dout <= vect_3l;
+                end
             end
             VECT_3H: begin
                 if(w_en) begin
                     vect_3h <= din;
                 end
+                if(r_en) begin
+                    dout <= vect_3h;
+                end
+            end
+            default begin
+                dout <= 8'b0;
             end
         endcase
     end
@@ -89,28 +118,28 @@ module pic(input wire clk,
         if(irq_0) begin
             pending[0] <= 1'b1;
         end
-        else if(intAck && current == 2'b0) begin
+        else if(intAck && current == 2'd0) begin
             pending[0] <= 1'b0;
         end
         
         if(irq_1) begin
             pending[1] <= 1'b1;
         end
-        else if(intAck && current == 2'b0) begin
+        else if(intAck && current == 2'd1) begin
             pending[1] <= 1'b0;
         end
 
         if(irq_2) begin
             pending[2] <= 1'b1;
         end
-        else if(intAck && current == 2'b0) begin
+        else if(intAck && current == 2'd2) begin
             pending[2] <= 1'b0;
         end
 
         if(irq_3) begin
             pending[3] <= 1'b1;
         end
-        else if(intAck && current == 2'b0) begin
+        else if(intAck && current == 2'd3) begin
             pending[3] <= 1'b0;
         end
     end

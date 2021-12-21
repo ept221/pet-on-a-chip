@@ -10,14 +10,13 @@
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
 
-        .define top_isr_vector_l, 0x13
-        .define top_isr_vector_h, 0x14
+        .define top_isr_vector_l, 21
+        .define top_isr_vector_h, 22
 ;******************************************************************************         
         .code
         
         ldi r0, isr[l]
         out r0, top_isr_vector_l
-        
         ldi r0, isr[h]
         out r0, top_isr_vector_h
 
@@ -37,7 +36,7 @@
 
         csr 0
         ssr 8                           ; enable interrupts
-loop:   br -1                           ; loop and wait for interrupt
+loop:   br loop                         ; loop and wait for interrupt
         hlt
 
 isr:    in r0, port_reg                 ; read pin register
