@@ -9,9 +9,9 @@ module counter_timer(input wire clk,
                      output reg out1 = 0,
                      output wire out0_en,
                      output wire out1_en,
-                     output wire top_flag = 0,
-                     output wire match0_flag = 0,
-                     output wire match1_flag = 0
+                     output wire top_flag,
+                     output wire match0_flag,
+                     output wire match1_flag,
 );
     //*********************************************************************************************
     parameter COUNTER_TIMER_ADDRESS = 8'h00;

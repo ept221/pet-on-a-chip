@@ -115,37 +115,44 @@ module pic(input wire clk,
     // if the intAck signal from the CPU is asserted.
     reg [3:0] pending;
     always @(posedge clk) begin
+        //******************************************************
         if(irq_0 == 1'b1) begin
             pending[0] <= 1'b1;
         end
         else if(intAck == 1'b1 && current == 2'd0) begin
             pending[0] <= 1'b0;
         end
-        
-        if(irq_0 == 1'b1) begin
+        //******************************************************
+        if(irq_1 == 1'b1) begin
             pending[1] <= 1'b1;
-        end/*
+        end
         else if(intAck == 1'b1 && current == 2'd1) begin
             pending[1] <= 1'b0;
-        end*/
-
+        end
+        //******************************************************
         if(irq_2 == 1'b1) begin
             pending[2] <= 1'b1;
         end
         else if(intAck == 1'b1 && current == 2'd2) begin
             pending[2] <= 1'b0;
         end
-
+        //******************************************************
         if(irq_3 == 1'b1) begin
             pending[3] <= 1'b1;
         end
         else if(intAck == 1'b1 && current == 2'd3) begin
             pending[3] <= 1'b0;
         end
+        //******************************************************
     end
     //**********************************************************
     // Signals the CPU with the pending interrupt of
     // the highest priority
+
+    // This has a problem. If we have pending[1] as the current one
+    // and we're currently serviceing it in the cpu,
+    // and then pending[0] comes around,
+    // then it will swap out the intvect 
     reg [2:0] current;
     always @(*) begin
         if(pending[0]) begin
@@ -171,7 +178,7 @@ module pic(input wire clk,
         else begin
             current = 2'd0;
             interrupt = 1'b0;
-            intVect = {vect_0h,vect_0l};
+            intVect = {vect_1h,vect_1l};
         end
     end
     //**********************************************************

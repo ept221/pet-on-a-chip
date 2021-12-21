@@ -16,9 +16,11 @@
         .code
         
         ldi r0, isr[l]
-        out r0, top_isr_vector_l
+        out r0, 20
+        out r0, 22
         ldi r0, isr[h]
-        out r0, top_isr_vector_h
+        out r0, 21
+        out r0, 23
 
         ldi r14, 0xff                   ; set stack pointer
 
