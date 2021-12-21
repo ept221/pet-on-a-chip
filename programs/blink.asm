@@ -10,11 +10,17 @@
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
 
-        .define gpu_isr_vector, 0x0014
-        .define top_isr_vector, 0x001E
+        .define top_isr_vector_l, 0x13
+        .define top_isr_vector_h, 0x14
 ;******************************************************************************         
         .code
-                
+        
+        ldi r0, isr[l]
+        out r0, top_isr_vector_l
+        
+        ldi r0, isr[h]
+        out r0, top_isr_vector_h
+
         ldi r14, 0xff                   ; set stack pointer
 
         ldi r0, 1
@@ -34,7 +40,6 @@
 loop:   br -1                           ; loop and wait for interrupt
         hlt
 
-        .org top_isr_vector
 isr:    in r0, port_reg                 ; read pin register
         xoi r0, 1                       ; toggle the led bit
         out r0, port_reg                ; write to the port register

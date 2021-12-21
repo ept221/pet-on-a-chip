@@ -10,7 +10,7 @@ sim:
 
 synth: soc/src/soc/top.v
 	mkdir -p build/synth
-	yosys -p "synth_ice40 -json build/synth/hardware.json -top top"  soc/src/soc/top.v soc/src/counter_timer/counter_timer.v soc/src/cpu/alu.v soc/src/cpu/control.v soc/src/cpu/cpu.v soc/src/cpu/regFile.v soc/src/d_ram_and_io/d_ram_and_io.v soc/src/gpio/gpio.v soc/src/gpu/gpu.v soc/src/gpu/pll.v soc/src/gpu/vga.v soc/src/memory/d_ram.v soc/src/memory/i_ram.v soc/src/uart/uart.v soc/src/motor_controller/motor_controller.v soc/src/servo/servo.v soc/src/sonar/sonar.v
+	yosys -p "synth_ice40 -json build/synth/hardware.json -top top"  soc/src/soc/top.v soc/src/counter_timer/counter_timer.v soc/src/cpu/alu.v soc/src/cpu/control.v soc/src/cpu/cpu.v soc/src/cpu/regFile.v soc/src/d_ram_and_io/d_ram_and_io.v soc/src/gpio/gpio.v soc/src/gpu/gpu.v soc/src/gpu/pll.v soc/src/gpu/vga.v soc/src/memory/d_ram.v soc/src/memory/i_ram.v soc/src/uart/uart.v soc/src/motor_controller/motor_controller.v soc/src/servo/servo.v soc/src/sonar/sonar.v soc/src/pic/pic.v
 
 pnr: build/synth/hardware.json
 	mkdir -p build/pnr

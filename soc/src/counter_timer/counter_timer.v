@@ -1,4 +1,5 @@
 module counter_timer(input wire clk,
+                     input wire rst,
                      input wire [7:0] din,
                      input wire [7:0] address,
                      input wire w_en,
@@ -8,12 +9,9 @@ module counter_timer(input wire clk,
                      output reg out1 = 0,
                      output wire out0_en,
                      output wire out1_en,
-                     output reg top_flag = 0,
-                     output reg match0_flag = 0,
-                     output reg match1_flag = 0,
-                     input wire top_flag_clr,
-                     input wire match0_flag_clr,
-                     input wire match1_flag_clr
+                     output wire top_flag = 0,
+                     output wire match0_flag = 0,
+                     output wire match1_flag = 0
 );
     //*********************************************************************************************
     parameter COUNTER_TIMER_ADDRESS = 8'h00;
@@ -47,7 +45,11 @@ module counter_timer(input wire clk,
     //*********************************************************************************************
     // Prescaler
     always @(posedge clk) begin
-        if(prescaler == scaleFactor) begin
+        if(rst) begin
+            scaled <= 0;
+            prescaler <= 0;
+        end
+        else if(prescaler == scaleFactor) begin
             scaled <= 1;
             prescaler <= 0;
         end
@@ -59,7 +61,12 @@ module counter_timer(input wire clk,
     //*********************************************************************************************
     // Counter/Timer
     always @(posedge clk) begin
-        if(scaled) begin
+        if(rst) begin
+            counter <= 0;
+            out0 <= 0;
+            out1 <= 0;
+        end
+        else if(scaled) begin
             if(counterControl[1:0] == 2'b00) begin          // Idle mode
                 counter <= 0;                               // Clear the counter
                 out0 <= 0;
@@ -102,96 +109,83 @@ module counter_timer(input wire clk,
     reg match0_old;
     reg match1_old;
     always @(posedge clk) begin
-        // Needed to detect edges
-        top_old <= top;
-        match0_old <= match0;
-        match1_old <= match1;
-
-        // Top
-        if(top_flag_clr) begin
-            top_flag <= 0;
+        if(rst) begin
+            top_old <= 0;
+            match0_old <= 0;
+            match1_old <= 0;
         end
-        else if(address == INTERRUPT_FLAGS_ADDRESS && w_en) begin        // Interrupt flag register
-            top_flag <= din[0];
-        end
-        else if(top && (~top_old) && counterControl[4]) begin
-            top_flag <= 1;
-        end
-
-        // Match0
-        if(match0_flag_clr) begin
-            match0_flag <= 0;
-        end
-        else if(address == INTERRUPT_FLAGS_ADDRESS && w_en) begin        // Interrupt flag register
-            match0_flag <= din[1];
-        end
-        else if(match0 && (~match0_old) && counterControl[5]) begin
-            match0_flag <= 1;
-        end
-
-        // Match1
-        if(match1_flag_clr) begin
-            match1_flag <= 0;
-        end
-        else if(address == INTERRUPT_FLAGS_ADDRESS && w_en) begin        // Interrupt flag register
-            match1_flag <= din[2];
-        end
-        else if(match1 && (~match1_old) && counterControl[6]) begin
-            match1_flag <= 1;
+        else begin
+            // Needed to detect edges
+            top_old <= top;
+            match0_old <= match0;
+            match1_old <= match1;
         end
     end
+    assign top_flag = (top && (~top_old) && counterControl[4]);
+    assign match0_flag = (match0 && (~match0_old) && counterControl[5]);
+    assign match1_flag = (match1 && (~match1_old) && counterControl[6]);
     //*********************************************************************************************
     always @(posedge clk) begin
-        case(address)
-            SCALE_FACTOR_LSB_ADDRESS: begin
-                if(w_en) begin
-                    scaleFactor[7:0] <= din;
+        if(rst) begin
+            scaleFactor[7:0] <= 0;
+            dout <= 0;
+            scaleFactor[15:8] <= 0;
+            counterControl <= 0;
+            cmpr0 <= 0;
+            cmpr1 <= 0;
+        end
+        else begin
+            case(address)
+                SCALE_FACTOR_LSB_ADDRESS: begin
+                    if(w_en) begin
+                        scaleFactor[7:0] <= din;
+                    end
+                    if(r_en) begin
+                        dout <= scaleFactor[7:0];
+                    end
                 end
-                if(r_en) begin
-                    dout <= scaleFactor[7:0];
+                SCALE_FACTOR_MSB_ADDRESS: begin
+                    if(w_en) begin
+                        scaleFactor[15:8] <= din;
+                    end
+                    if(r_en) begin
+                        dout <= scaleFactor[15:8];
+                    end
                 end
-            end
-            SCALE_FACTOR_MSB_ADDRESS: begin
-                if(w_en) begin
-                    scaleFactor[15:8] <= din;
+                COUNTER_CONTROL_ADDRESS: begin
+                    if(w_en) begin
+                        counterControl <= din;
+                    end
+                    if(r_en) begin
+                        dout <= counterControl;
+                    end
                 end
-                if(r_en) begin
-                    dout <= scaleFactor[15:8];
+                CMPR0_ADDRESS: begin
+                    if(w_en) begin
+                        cmpr0 <= din;
+                    end
+                    if(r_en) begin
+                        dout <= cmpr0;
+                    end
                 end
-            end
-            COUNTER_CONTROL_ADDRESS: begin
-                if(w_en) begin
-                    counterControl <= din;
+                CMPR1_ADDRESS: begin
+                    if(w_en) begin
+                        cmpr1 <= din;
+                    end
+                    if(r_en) begin
+                        dout <= cmpr1;
+                    end
                 end
-                if(r_en) begin
-                    dout <= counterControl;
+                COUNTER_ADDRESS: begin
+                    if(r_en) begin
+                        dout <= counter;
+                    end
                 end
-            end
-            CMPR0_ADDRESS: begin
-                if(w_en) begin
-                    cmpr0 <= din;
+                default begin
+                    dout <= 0;
                 end
-                if(r_en) begin
-                    dout <= cmpr0;
-                end
-            end
-            CMPR1_ADDRESS: begin
-                if(w_en) begin
-                    cmpr1 <= din;
-                end
-                if(r_en) begin
-                    dout <= cmpr1;
-                end
-            end
-            COUNTER_ADDRESS: begin
-                if(r_en) begin
-                    dout <= counter;
-                end
-            end
-            default begin
-                dout <= 0;
-            end
-        endcase
+            endcase
+        end
     end
     //*********************************************************************************************
 endmodule

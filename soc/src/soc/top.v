@@ -30,14 +30,9 @@ module top(input wire clk,
                .dMemIOOut(dMemIOOut),
                .dMemIOWriteEn(dMemIOWriteEn),
                .dMemIOReadEn(dMemIOReadEn),
-               .interrupt_0(blanking_start_interrupt_flag),
-               .interrupt_1(top_flag),
-               .interrupt_2(match0_flag),
-               .interrupt_3(match1_flag),
-               .interrupt_0_clr(blanking_start_interrupt_flag_clr),
-               .interrupt_1_clr(top_flag_clr),
-               .interrupt_2_clr(match0_flag_clr),
-               .interrupt_3_clr(match1_flag_clr),
+               .interrupt(interrupt),
+               .intVect(intVect),
+               .intAck(intAck),
                .reset_out(reset_out)
     );
     //***************************************************************
@@ -55,19 +50,16 @@ module top(input wire clk,
     );
     //***************************************************************
     // Instantiate Interface to Data Memory and IO  
-    wire top_flag;
-    wire match0_flag;
-    wire match1_flag;
-    wire top_flag_clr;
-    wire match0_flag_clr;
-    wire match1_flag_clr;
-    wire blanking_start_interrupt_flag;
-    wire blanking_start_interrupt_flag_clr;
     wire [15:0] dMemIOAddress;
     wire [7:0] dMemIOOut;
     wire [7:0] dMemIOIn;
     wire dMemIOWriteEn;
     wire dMemIOReadEn;
+
+    wire interrupt;
+    wire [15:0] intVect;
+    wire intAck;
+
     d_ram_and_io d_ram_and_io_inst(.clk(clk),
                                    .rst(reset_out),
                                    .din(dMemIOIn),
@@ -77,13 +69,6 @@ module top(input wire clk,
                                    .dout(dMemIOOut),
 
                                    .gpio_pins(gpio_pins),
-
-                                   .top_flag(top_flag),
-                                   .match0_flag(match0_flag),
-                                   .match1_flag(match1_flag),
-                                   .top_flag_clr(top_flag_clr),
-                                   .match0_flag_clr(match0_flag_clr),
-                                   .match1_flag_clr(match1_flag_clr),
 
                                    .rx(rx),
                                    .tx(tx),
@@ -98,13 +83,15 @@ module top(input wire clk,
                                    .trig(trig),
                                    .echo(echo),
 
+                                   .interrupt(interrupt),
+                                   .intVect(intVect),
+                                   .intAck(intAck),
+
                                    .h_sync(h_sync),
                                    .v_sync(v_sync),
                                    .R(R),
                                    .G(G),
-                                   .B(B),
-                                   .blanking_start_interrupt_flag(blanking_start_interrupt_flag),
-                                   .blanking_start_interrupt_flag_clr(blanking_start_interrupt_flag_clr)
+                                   .B(B)
     );
     //***************************************************************
 endmodule

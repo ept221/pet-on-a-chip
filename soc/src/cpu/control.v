@@ -23,19 +23,8 @@ module control(input wire clk,
                output reg [2:0] iMemAddrSelect,
                output reg iMemReadEnable,
                output reg pcWriteEn,
-               output reg [15:0] interruptVector,
-               input wire interrupt_0,
-               input wire interrupt_1,
-               input wire interrupt_2,
-               input wire interrupt_3,
-               output reg interrupt_0_clr,
-               output reg interrupt_1_clr,
-               output reg interrupt_2_clr,
-               output reg interrupt_3_clr,
-               input wire interrupt_vect_0,
-               input wire interrupt_vect_1,
-               input wire interrupt_vect_2,
-               input wire interrupt_vect_3,
+               input wire interrupt,
+               output wire intAck,
                output wire reset_out
 );    
     //****************************************************************************************************
@@ -92,59 +81,8 @@ module control(input wire clk,
         endcase 
     end
     //****************************************************************************************************
-    // Interrupt vectoring
-    always @(*) begin
-        if(interrupt_0) begin
-            interruptVector = interrupt_vect_0;
-        end
-        else if(interrupt_1) begin
-            interruptVector = interrupt_vect_1;
-        end
-        else if(interrupt_2) begin
-            interruptVector = interrupt_vect_2;
-        end
-        else if(interrupt_3) begin
-            interruptVector = interrupt_vect_3;
-        end
-        else begin
-            interruptVector = 16'd0;
-        end
-    end
-
-    always @(*) begin
-        if(state == INTERRUPT && interrupt_0) begin
-            interrupt_0_clr = 1;
-            interrupt_1_clr = 0;
-            interrupt_2_clr = 0;
-            interrupt_3_clr = 0;
-        end
-        else if(state == INTERRUPT && interrupt_1) begin
-            interrupt_0_clr = 0;
-            interrupt_1_clr = 1;
-            interrupt_2_clr = 0;
-            interrupt_3_clr = 0;
-        end
-        else if(state == INTERRUPT && interrupt_2) begin
-            interrupt_0_clr = 0;
-            interrupt_1_clr = 0;
-            interrupt_2_clr = 1;
-            interrupt_3_clr = 0;
-        end
-        else if(state == INTERRUPT && interrupt_3) begin
-            interrupt_0_clr = 0;
-            interrupt_1_clr = 0;
-            interrupt_2_clr = 0;
-            interrupt_3_clr = 1;
-        end
-        else begin
-            interrupt_0_clr = 0;
-            interrupt_1_clr = 0;
-            interrupt_2_clr = 0;
-            interrupt_3_clr = 0;
-        end
-    end
-
-    wire interrupt = interrupt_0 || interrupt_1 || interrupt_2 || interrupt_3;
+    // Interrupt control
+    assign intAck = (state == INTERRUPT);
 
     //****************************************************************************************************
     // Main Decoder

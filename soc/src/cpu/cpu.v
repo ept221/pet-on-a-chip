@@ -11,18 +11,10 @@ module cpu(input wire clk,
            output wire dMemIOWriteEn,
            output wire dMemIOReadEn,
 
-           input wire interrupt_0,
-           input wire interrupt_1,
-           input wire interrupt_2,
-           input wire interrupt_3,
-           output wire interrupt_0_clr,
-           output wire interrupt_1_clr,
-           output wire interrupt_2_clr,
-           output wire interrupt_3_clr,
-           output wire interrupt_vect_0,
-           output wire interrupt_vect_1,
-           output wire interrupt_vect_2,
-           output wire interrupt_vect_3,
+           input wire interrupt,
+           input wire [15:0] intVect,
+           output wire intAck,
+
            output wire reset_out
 );
     //***************************************************************
@@ -61,19 +53,9 @@ module cpu(input wire clk,
 
                   .pcWriteEn(pcWriteEn),
 
-                  .interruptVector(interruptVector),
-                  .interrupt_0(interrupt_0),
-                  .interrupt_1(interrupt_1),
-                  .interrupt_2(interrupt_2),
-                  .interrupt_3(interrupt_3),
-                  .interrupt_0_clr(interrupt_0_clr),
-                  .interrupt_1_clr(interrupt_1_clr),
-                  .interrupt_2_clr(interrupt_2_clr),
-                  .interrupt_3_clr(interrupt_3_clr),
-                  .interrupt_vect_0(interrupt_vect_0),
-                  .interrupt_vect_1(interrupt_vect_1),
-                  .interrupt_vect_2(interrupt_vect_2),
-                  .interrupt_vect_3(interrupt_vect_3),
+                  .interrupt(interrupt),
+                  .intAck(intAck),
+
                   .reset_out(reset_out)
     );
     //***************************************************************
@@ -250,13 +232,12 @@ module cpu(input wire clk,
     end
     //***************************************************************
     // Instruction Memory Address Mux
-    wire [15:0] interruptVector;
     wire [2:0] iMemAddrSelect;                  //*
     always @(*) begin
         case(iMemAddrSelect)
         3'b000:     iMemAddress = pcOut;
         3'b001:     iMemAddress = pcPlusOne;
-        3'b010:     iMemAddress = interruptVector;
+        3'b010:     iMemAddress = intVect;
         3'b011:     iMemAddress = iMemOut;
         3'b100:     iMemAddress = {regFileOutC, regFileOutB};
         3'b101:     iMemAddress = {returnReg,dMemIOOut};

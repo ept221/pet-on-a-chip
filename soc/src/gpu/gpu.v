@@ -13,8 +13,7 @@ module gpu(input wire clk,
            output wire G,
            output wire B,
 
-           output reg blanking_start_interrupt_flag = 0,
-           input wire blanking_start_interrupt_flag_clr
+           output wire blanking_start_interrupt_flag
 );
 
     parameter GPU_IO_ADDRESS = 8'h00;
@@ -140,21 +139,7 @@ module gpu(input wire clk,
     end
 
     reg blanking_start_interrupt_enable = 0;
-    always @(posedge clk) begin
-        if(rst) begin
-            blanking_start_interrupt_flag <= 0;
-        end
-        else if(blanking_start_interrupt_flag_clr) begin
-            blanking_start_interrupt_flag <= 0;
-        end
-        else if(address[7:0] == GPU_CONTROL_ADDRESS && w_en) begin
-            blanking_start_interrupt_flag <= din[0];
-        end
-        else if(&sync_to_clk && ~edgeFlop && blanking_start_interrupt_enable) begin
-            blanking_start_interrupt_flag <= 1;
-        end
-    end
-
+    assign blanking_start_interrupt_flag = &sync_to_clk && ~edgeFlop && blanking_start_interrupt_enable;
     //*****************************************************************************************************************
     // Create the text RAM addressed by the current tile being displayed
     // by the vga sync generator.
