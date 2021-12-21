@@ -25,14 +25,18 @@
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
 
-        .define gpu_isr_vector, 0x0014
-        .define top_isr_vector, 0x001E
-        .define match0_isr_vector, 0x0028
+        .define top_isr_vec_reg_l, 0x16
+        .define top_isr_vec_reg_h, 0x17
 ;******************************************************************************
         .code
 
         ldi r14, 0xff                   ; setup stack pointer
         ldi r15, 0x00
+
+        ldi r0, isr[l]                  ; setup the top isr vector
+        out r0, top_isr_vec_reg_l
+        ldi r0, isr[h]
+        out r0, top_isr_vec_reg_h
 
         ldi r0, 128                     ; setup servo
         out r0, servo
@@ -54,7 +58,6 @@
 
         br main
 ;******************************************************************************
-        .org top_isr_vector
 isr:    adi r0, -1                      ; decrement the delay counter 
         ssr 8
         rnz                             ; If delay counter not zero, return                     

@@ -23,9 +23,6 @@
 
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
-
-        .define gpu_isr_vector, 0x0014
-        .define top_isr_vector, 0x001E
 ;******************************************************************************
         .code
 

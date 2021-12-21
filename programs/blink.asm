@@ -10,19 +10,19 @@
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
 
-        .define top_isr_vector_l, 21
-        .define top_isr_vector_h, 22
+        .define top_isr_vec_reg_l, 0x16
+        .define top_isr_vec_reg_h, 0x17
 ;******************************************************************************         
         .code
         
-        ldi r0, isr[l]
-        out r0, top_isr_vector_l
-        ldi r0, isr[h]
-        out r0, top_isr_vector_h
-
         ldi r14, 0xff                   ; set stack pointer
 
-        ldi r0, 1
+        ldi r0, isr[l]                  ; setup the top isr vector
+        out r0, top_isr_vec_reg_l
+        ldi r0, isr[h]
+        out r0, top_isr_vec_reg_h
+
+        ldi r0, 0b00011111
         out r0, dir_reg                 ; set pin 1 to output
 
         ldi r0, 36

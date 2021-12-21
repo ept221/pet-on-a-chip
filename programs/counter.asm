@@ -10,12 +10,17 @@
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
 
-        .define gpu_isr_vector, 0x0014
-        .define top_isr_vector, 0x001E
+        .define top_isr_vec_reg_l, 0x16
+        .define top_isr_vec_reg_h, 0x17
 ;******************************************************************************         
         .code
                 
         ldi r14, 0xff                   ; set stack pointer
+
+        ldi r0, isr[l]                  ; setup the top isr vector
+        out r0, top_isr_vec_reg_l
+        ldi r0, isr[h]
+        out r0, top_isr_vec_reg_h
 
         ldi r0, 0b00011000
         out r0, gpu_ctrl_reg
@@ -40,9 +45,7 @@
         ssr 8                           ; enable interrupts
 loop:   br loop                         ; loop and wait for interrupt
 ;******************************************************************************
-        .org top_isr_vector
-isr:    
-        out r5, port_reg
+isr:    out r5, port_reg
         mov r12, r5
         call numToStr
         ldi r2, gpu_addr[l]

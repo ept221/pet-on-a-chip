@@ -22,18 +22,23 @@
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
 
-        .define gpu_isr_vector, 0x0014
-        .define top_isr_vector, 0x001E
+        .define top_isr_vec_reg_l, 0x16
+        .define top_isr_vec_reg_h, 0x17
 ;******************************************************************************        
         .code
                 
         ldi r14, 0xff                   ; set stack pointer
         ldi r15, 0x00
+
+        ldi r0, isr[l]                  ; setup the top isr vector
+        out r0, top_isr_vec_reg_l
+        ldi r0, isr[h]
+        out r0, top_isr_vec_reg_h
         
         ldi r0, 128                     ; center the servo
         out r0, servo
 
-        ldi r0, 1                       ; set gpio[0] to output
+        ldi r0, 0b00011111              ; set gpio to output
         out r0, dir_reg
 
         ldi r0, 0x18
@@ -44,17 +49,6 @@
 
         ssr 8                           ; enable all interrupts
 
-        br main
-;******************************************************************************
-        .org top_isr_vector
-isr:    adi r0, -1                      ; decrement the delay counter 
-        ssr 8
-        rnz                             ; If delay counter not zero, return                     
-
-        ldi r1, 0                       ; else, stop the counter and interrupts
-        out r1, count_ctrl              
-        ret
-;******************************************************************************
 main:   in r0, port_reg
         xoi r0, 1
         out r0, port_reg
@@ -78,5 +72,13 @@ loop:   cpi r0, 0
 
         pop r1
         pop r0
+        ret
+;******************************************************************************
+isr:    adi r0, -1                      ; decrement the delay counter 
+        ssr 8
+        rnz                             ; If delay counter not zero, return                     
+
+        ldi r1, 0                       ; else, stop the counter and interrupts
+        out r1, count_ctrl              
         ret
 ;******************************************************************************
