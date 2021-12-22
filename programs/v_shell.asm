@@ -282,11 +282,15 @@ get_str_bs:     api p2, -1              ; else, decriment the buffer pointer
                 str r5, p12, 0
                 br get_str_tx           ; and echo the backspace
 
-get_str_not_bs: mov r5, r0              ; check if p0 == 0 (i.e. we are at the end of the buffer)
+get_str_not_bs: cpi r4, newline
+                bnz get_str_not_nl
+                ldi r5, space           ; overwrite the cursor with a space   
+                str r5, p12, 0
+                br get_str_store
+
+get_str_not_nl: mov r5, r0              ; check if p0 == 0 (i.e. we are at the end of the buffer)
                 or r5, r1
-                bnz get_str_store       ; if p0 is non-zero, store the char
-                cpi r4, newline         ; get another char if not a newline, because we are at the end of the buffer
-                bnz get_str_rx          ; but don't branch if we have a newline we need to store   
+                bz get_str_rx           ; go wait for a newline or backspace if at the end of the buffer
 
 get_str_store:  sri r4, p2              ; store the char in the provided buffer
                 adi r0, -1              ; decriment the length counter
@@ -300,8 +304,7 @@ get_str_tx:     push r0
                 pop r0
 
                 cpi r4, newline         ; return if the char was a newline
-                bz get_str_ret
-                br get_str_rx
+                bnz get_str_rx
 
 get_str_ret:    ldi r4, 0               ; add the null terminator to the string
                 str r4, p2, 0
