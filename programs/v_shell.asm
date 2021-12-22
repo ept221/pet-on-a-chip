@@ -12,10 +12,12 @@
 
                 .define newline, 10
                 .define backspace, 8
+                .define underscore, 95
+                .define space, 32
 ;******************************************************************************         
                 .code
 
-main:           ldi r14, 0x00           ; setup the stack pointer
+init:           ldi r14, 0x00           ; setup the stack pointer
                 ldi r15, 0x07
 
                 ldi r0, 8               ; set the baud rate to 115200
@@ -206,7 +208,8 @@ paint_char_bs:  api p12, -1             ; move back the char pointer
 
 paint_char_ret: ret
 ;******************************************************************************
-; paint_str
+; paint_str prints a string to the VGA screen at the current cursor position.
+; A pointer to the strin must be in the register pair p2.
 paint_str:      push r0
                 push r2
                 push r3
@@ -242,7 +245,7 @@ print_str_ret:  pop r3
                 ret
 ;******************************************************************************
 ; get_str reads a newline terminated string from the UART and echos it back.
-; A pointer to the  buffer must be in the register pair p2, and the length of
+; A pointer to the buffer must be in the register pair p2, and the length of
 ; the buffer must be in the register pair p0.
 get_str:        push r0
                 push r1
@@ -252,6 +255,9 @@ get_str:        push r0
                 push r5
                 push r6
                 push r7
+
+                ldi r5, underscore      ; print the cursor         
+                str r5, p12, 0
 
                 api p0, -2              ; subtract off one for the null char, and one for the nl
                 mov r6, r0              ; create backup of the length 
@@ -264,23 +270,23 @@ get_str_rx:     in r5, uart_ctrl        ; poll for full rx buffer
                 in r4, uart_buffer      ; read the char
 
                 cpi r4, backspace       ; check if the char was backspace
-                bnz get_str_not_bs      
-                cmp r0, r6              ; and if p0 != p6
-                bnz get_str_bs
-                cmp r1, r7
-                bnz get_str_bs
-                br get_str_rx
+                bnz get_str_not_bs      ; if it is wasn't, go do not_bs
+                cmp r0, r6              ; and if p0 != p6 (part1)
+                bnz get_str_bs          ; then go do backspace
+                cmp r1, r7              ; and if p0 != p6 (part2)
+                bz get_str_rx           ; if p0 == p6 then backspace would go past buffer, so go get another char
 
 get_str_bs:     api p2, -1              ; else, decriment the buffer pointer
                 api p0, 1               ; incriment the length
+                ldi r5, space           ; overwrite the cursor with a space   
+                str r5, p12, 0
                 br get_str_tx           ; and echo the backspace
 
-get_str_not_bs: mov r5, r0              ; if p0 is zero and the char was not a newline
+get_str_not_bs: mov r5, r0              ; check if p0 == 0 (i.e. we are at the end of the buffer)
                 or r5, r1
-                bnz get_str_store  
-                cpi r4, 10
-                bz get_str_store
-                br get_str_rx           ; get another char
+                bnz get_str_store       ; if p0 is non-zero, store the char
+                cpi r4, newline         ; get another char if not a newline, because we are at the end of the buffer
+                bnz get_str_rx          ; but don't branch if we have a newline we need to store   
 
 get_str_store:  sri r4, p2              ; store the char in the provided buffer
                 adi r0, -1              ; decriment the length counter
@@ -289,9 +295,11 @@ get_str_tx:     push r0
                 mov r0, r4
                 call print_char
                 call paint_char
+                ldi r5, underscore      ; print the cursor           
+                str r5, p12, 0
                 pop r0
 
-                cpi r4, 10              ; return if the char was a newline
+                cpi r4, newline         ; return if the char was a newline
                 bz get_str_ret
                 br get_str_rx
 
