@@ -68,7 +68,7 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 cpi r6, 0
                 bz poke
 
-                ldi r4, cmd_clear[l]     ; if "clear" run clear
+                ldi r4, cmd_clear[l]    ; if "clear" run clear
                 ldi r5, cmd_clear[h]
                 call str_cmp
                 cpi r6, 0
@@ -204,7 +204,13 @@ paint_char_nl:  sub r12, r9             ; need to go back to the beginning of th
 paint_char_bs:  api p12, -1             ; move back the char pointer
                 ldi r5, 32              
                 str r5, p12, 0          ; and overwrite the data with a space
-                adi r9, -1              ; decriment the column counter (won't work if we go up a line)
+                
+                cpi r9, 0               ; if we're at the beginning of the row
+                bnz paint_char_sub
+                ldi r9, 79              ; set column counter to end of previous row
+                br paint_char_ret
+
+paint_char_sub: adi r9, -1              ; else decriment the column counter
 
 paint_char_ret: ret
 ;******************************************************************************
