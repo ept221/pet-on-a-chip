@@ -7,26 +7,42 @@
                 .define port_reg, 0x01
                 .define pin_reg, 0x02
 
+                .define gpu_addr, 0x2000
+                .define gpu_ctrl_reg, 0x80
+
                 .define newline, 10
+                .define backspace, 8
+                .define underscore, 95
+                .define space, 32
 ;******************************************************************************         
                 .code
 
-main:           ldi r0, 8
-                out r0, uart_baud       ; set the baud rate to 115200
+init:           ldi r14, 0x00           ; setup the stack pointer
+                ldi r15, 0x07
+
+                ldi r0, 8               ; set the baud rate to 115200
+                out r0, uart_baud       
+
+                ldi r0, 0b00011100      ; setup the gpu
+                out r0, gpu_ctrl_reg
+
+                ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
+                ldi r13, gpu_addr[h]
+                ldi r9, 0               ; the col counter
 
                 ldi r0, 0b11111
                 out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
 
-                ldi r14, 0x00           ; setup the stack pointer
-                ldi r15, 0x07
-
                 ldi r2, welcome[l]      ; print the welcome
                 ldi r3, welcome[h]
                 call print_str
+                call paint_str
+                ;***************************************************************
 
 loop:           ldi r2, prompt[l]       ; print the prompt
                 ldi r3, prompt[h]
                 call print_str
+                call paint_str
 
                 ldi r0, 11              ; get user input
                 ldi r2, buffer[l]
@@ -52,16 +68,24 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 cpi r6, 0
                 bz poke
 
+                ldi r4, cmd_clear[l]    ; if "clear" run clear
+                ldi r5, cmd_clear[h]
+                call str_cmp
+                cpi r6, 0
+                bz clear
+
                 br loop                 ; else, go get another input
                 ;**************************************************************
 help:           ldi r2, hlp_msg_1[l]    ; print help message
                 ldi r3, hlp_msg_1[h]
                 call print_str
+                call paint_str
                 br loop
                 ;**************************************************************
 peek:           ldi r2, peek_msg_1[l]   ; prompt for address
                 ldi r3, peek_msg_1[h]
                 call print_str
+                call paint_str
 
                 ldi r0, 11              ; get user input
                 ldi r2, buffer[l]
@@ -81,14 +105,17 @@ peek:           ldi r2, peek_msg_1[l]   ; prompt for address
                 ldi r2, buffer[l]
                 ldi r3, buffer[h]
                 call print_str          ; print the register's contents
+                call paint_str
 
                 ldi r0, newline
                 call print_char
+                call paint_char
                 br loop
                 ;**************************************************************
 poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 ldi r3, poke_msg_1[h]
                 call print_str
+                call paint_str
 
                 ldi r0, 11              ; get user input
                 ldi r2, buffer[l]
@@ -104,6 +131,7 @@ poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 ldi r2, poke_msg_2[l]   ; prompt for data
                 ldi r3, poke_msg_2[h]
                 call print_str
+                call paint_str
 
                 ldi r0, 11              ; get user input
                 ldi r2, buffer[l]
@@ -120,6 +148,41 @@ poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 str r0, p2, 0           ; write to the register
 
                 br loop
+                ;**************************************************************
+clear:          ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
+                ldi r13, gpu_addr[h]
+                ldi r9, 0               ; the col counter
+                ldi r0, 32              ; This clears the screen by filling
+                ldi r2, 0x60            ; it up with spaces
+                ldi r3, 0x09
+
+clear_p:        sri r0, p12
+                api p2, -1
+                cpi r3, 0
+                bnz clear_p
+                cpi r2, 0
+                bnz clear_p
+
+                ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
+                ldi r13, gpu_addr[h]
+                br loop
+                ;**************************************************************
+                br loop
+;******************************************************************************
+; scrolls the screen and adjusts the cursor
+scroll:         push r0
+
+                in r0, gpu_ctrl_reg
+                ori r0, 0b00100000
+                out r0, gpu_ctrl_reg
+
+scroll_p:       in r0, gpu_ctrl_reg
+                ani r0, 32
+                bnz scroll_p
+                api p12, -80
+
+                pop r0
+                ret
 ;******************************************************************************
 ; print char prints a char over the UART. The char must be placed in r0.
 ; Additionally the UART must already be configured.
@@ -131,7 +194,73 @@ print_char_p:   in r1, uart_ctrl
 
                 out r0, uart_buffer
 
-                pop r1
+print_char_ret: pop r1
+                ret
+;******************************************************************************
+; paint_char
+paint_char:     cpi r0, newline         ; check to see if the char is a newline
+                bz paint_char_nl
+                cpi r0, backspace
+                bz paint_char_bs
+                
+                cpi r13, 41             ; (gpu_addr + 80*30 - 1)[h]
+                bc paint_char_s
+                bn paint_char_r0
+                cpi r12, 95             ; (gpu_addr + 80*30 - 1)[l]
+                bc paint_char_s
+                br paint_char_r0
+
+paint_char_s:   call scroll
+
+paint_char_r0:  sri r0, p12             
+                cpi r9, 80
+                bnz paint_char_reg
+                ldi r9, 0
+                br paint_char_ret
+
+paint_char_reg: adi r9, 1
+                br paint_char_ret
+
+paint_char_nl:  sub r12, r9             ; need to go back to the beginning of the line
+                aci r13, -1             ; this is a hack that does r13 - 0 with borrow
+                api p12, 80             ; then add 80 to go to the next line
+                ldi r9, 0               ; and reset the column counter to 0
+
+                cpi r13, 41             ; (gpu_addr + 80*30 - 1)[h]
+                cc scroll
+                bn paint_char_ret
+                cpi r12, 95             ; (gpu_addr + 80*30 - 1)[l]
+                cc scroll
+                br paint_char_ret
+
+paint_char_bs:  api p12, -1             ; move back the char pointer
+                ldi r5, 32              
+                str r5, p12, 0          ; and overwrite the data with a space
+                
+                cpi r9, 0               ; if we're at the beginning of the row
+                bnz paint_char_sub
+                ldi r9, 79              ; set column counter to end of previous row
+                br paint_char_ret
+
+paint_char_sub: adi r9, -1              ; else decriment the column counter
+
+paint_char_ret: ret
+;******************************************************************************
+; paint_str prints a string to the VGA screen at the current cursor position.
+; A pointer to the strin must be in the register pair p2.
+paint_str:      push r0
+                push r2
+                push r3
+
+paint_str_p:    lri r0, p2 
+                cpi r0, 0
+                bz paint_str_ret
+                call paint_char
+                br paint_str_p
+
+paint_str_ret:  pop r3
+                pop r2
+                pop r0
                 ret
 ;******************************************************************************
 ; print_str prints a string over the UART. A pointer to the string must be in
@@ -141,15 +270,10 @@ print_str:      push r0
                 push r2
                 push r3
 
-print_str_p:    in r0, uart_ctrl        ; poll for empty buffer
-                ani r0, 2
-                bz print_str_p
-
-                lri r1, p2              ; check for end of string
-                cpi r1, 0
+print_str_p:    lri r0, p2              ; check for end of string
+                cpi r0, 0
                 bz print_str_ret
-
-                out r1, uart_buffer     ; print the char
+                call print_char
                 br print_str_p
 
 print_str_ret:  pop r3
@@ -159,7 +283,7 @@ print_str_ret:  pop r3
                 ret
 ;******************************************************************************
 ; get_str reads a newline terminated string from the UART and echos it back.
-; A pointer to the  buffer must be in the register pair p2, and the length of
+; A pointer to the buffer must be in the register pair p2, and the length of
 ; the buffer must be in the register pair p0.
 get_str:        push r0
                 push r1
@@ -169,6 +293,9 @@ get_str:        push r0
                 push r5
                 push r6
                 push r7
+
+                ldi r5, underscore      ; print the cursor         
+                str r5, p12, 0
 
                 api p0, -2              ; subtract off one for the null char, and one for the nl
                 mov r6, r0              ; create backup of the length 
@@ -180,37 +307,43 @@ get_str_rx:     in r5, uart_ctrl        ; poll for full rx buffer
 
                 in r4, uart_buffer      ; read the char
 
-                cpi r4, 8               ; check if the char was backspace
-                bnz get_str_not_bs      
-                cmp r0, r6              ; and if p0 != p6
-                bnz get_str_bs
-                cmp r1, r7
-                bnz get_str_bs
-                br get_str_rx
+                cpi r4, backspace       ; check if the char was backspace
+                bnz get_str_not_bs      ; if it is wasn't, go do not_bs
+                cmp r0, r6              ; and if p0 != p6 (part1)
+                bnz get_str_bs          ; then go do backspace
+                cmp r1, r7              ; and if p0 != p6 (part2)
+                bz get_str_rx           ; if p0 == p6 then backspace would go past buffer, so go get another char
 
 get_str_bs:     api p2, -1              ; else, decriment the buffer pointer
                 api p0, 1               ; incriment the length
+                ldi r5, space           ; overwrite the cursor with a space   
+                str r5, p12, 0
                 br get_str_tx           ; and echo the backspace
 
-get_str_not_bs: mov r5, r0              ; if p0 is zero and the char was not a newline
+get_str_not_bs: cpi r4, newline
+                bnz get_str_not_nl
+                ldi r5, space           ; overwrite the cursor with a space   
+                str r5, p12, 0
+                br get_str_store
+
+get_str_not_nl: mov r5, r0              ; check if p0 == 0 (i.e. we are at the end of the buffer)
                 or r5, r1
-                bnz get_str_store  
-                cpi r4, 10
-                bz get_str_store
-                br get_str_rx           ; get another char
+                bz get_str_rx           ; go wait for a newline or backspace if at the end of the buffer
 
 get_str_store:  sri r4, p2              ; store the char in the provided buffer
                 adi r0, -1              ; decriment the length counter
 
-get_str_tx:     in r5, uart_ctrl        ; poll for empty rx buffer
-                ani r5, 2
-                bz get_str_tx
+get_str_tx:     push r0
+                mov r0, r4
+                call print_char
+                call paint_char
+                pop r0
 
-                out r4, uart_buffer     ; echo the char
-
-                cpi r4, 10              ; return if the char was a newline
+                cpi r4, newline         ; return if the char was a newline
                 bz get_str_ret
-                br get_str_rx           ; else go read another char
+                ldi r5, underscore      ; print the cursor           
+                str r5, p12, 0
+                br get_str_rx
 
 get_str_ret:    ldi r4, 0               ; add the null terminator to the string
                 str r4, p2, 0
@@ -451,10 +584,12 @@ prompt:         .string "> "
 
 cmd_peek:       .string "peek"
 cmd_poke:       .string "poke"
+cmd_clear:      .string "clear"
 cmd_hlp:        .string "h"
 
 hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
                 .ostring "Type \"poke\" to write to an i/o register\n"
+                .ostring "Type \"clear\" to clear the screen\n"
                 .string  "Type \"h\" to display this message\n"
 
 peek_msg_1:     .string "Enter an i/o address to read from:\n> "
