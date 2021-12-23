@@ -203,7 +203,16 @@ paint_char:     cpi r0, newline         ; check to see if the char is a newline
                 cpi r0, backspace
                 bz paint_char_bs
                 
-                sri r0, p12             
+                cpi r13, 41             ; (gpu_addr + 80*30 - 1)[h]
+                bc paint_char_s
+                bn paint_char_r0
+                cpi r12, 95             ; (gpu_addr + 80*30 - 1)[l]
+                bc paint_char_s
+                br paint_char_r0
+
+paint_char_s:   call scroll
+
+paint_char_r0:  sri r0, p12             
                 cpi r9, 80
                 bnz paint_char_reg
                 ldi r9, 0
@@ -216,6 +225,12 @@ paint_char_nl:  sub r12, r9             ; need to go back to the beginning of th
                 aci r13, -1             ; this is a hack that does r13 - 0 with borrow
                 api p12, 80             ; then add 80 to go to the next line
                 ldi r9, 0               ; and reset the column counter to 0
+
+                cpi r13, 41             ; (gpu_addr + 80*30 - 1)[h]
+                cc scroll
+                bn paint_char_ret
+                cpi r12, 95             ; (gpu_addr + 80*30 - 1)[l]
+                cc scroll
                 br paint_char_ret
 
 paint_char_bs:  api p12, -1             ; move back the char pointer
