@@ -166,6 +166,23 @@ clear_p:        sri r0, p12
                 ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
                 ldi r13, gpu_addr[h]
                 br loop
+                ;**************************************************************
+                br loop
+;******************************************************************************
+; scrolls the screen and adjusts the cursor
+scroll:         push r0
+
+                in r0, gpu_ctrl_reg
+                ori r0, 0b00100000
+                out r0, gpu_ctrl_reg
+
+scroll_p:       in r0, gpu_ctrl_reg
+                ani r0, 32
+                bnz scroll_p
+                api p12, -80
+
+                pop r0
+                ret
 ;******************************************************************************
 ; print char prints a char over the UART. The char must be placed in r0.
 ; Additionally the UART must already be configured.
@@ -187,7 +204,7 @@ paint_char:     cpi r0, newline         ; check to see if the char is a newline
                 bz paint_char_bs
                 
                 sri r0, p12             
-                cpi r9, 79
+                cpi r9, 80
                 bnz paint_char_reg
                 ldi r9, 0
                 br paint_char_ret
@@ -305,12 +322,13 @@ get_str_tx:     push r0
                 mov r0, r4
                 call print_char
                 call paint_char
-                ldi r5, underscore      ; print the cursor           
-                str r5, p12, 0
                 pop r0
 
                 cpi r4, newline         ; return if the char was a newline
-                bnz get_str_rx
+                bz get_str_ret
+                ldi r5, underscore      ; print the cursor           
+                str r5, p12, 0
+                br get_str_rx
 
 get_str_ret:    ldi r4, 0               ; add the null terminator to the string
                 str r4, p2, 0
