@@ -74,7 +74,18 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 cpi r6, 0
                 bz clear
 
-                br loop                 ; else, go get another input
+                ldi r4, empty_str[l]    ; if empty go get another input
+                ldi r5, empty_str[h]
+                call str_cmp
+                cpi r6, 0
+                bz loop
+
+                ldi r2, error_msg[l]    ; else, print an error message
+                ldi r3, error_msg[h]
+                call print_str
+                call paint_str
+
+                br loop                 ; and go get another input
                 ;**************************************************************
 help:           ldi r2, hlp_msg_1[l]    ; print help message
                 ldi r3, hlp_msg_1[h]
@@ -166,25 +177,23 @@ clear_p:        sri r0, p12
                 ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
                 ldi r13, gpu_addr[h]
                 br loop
-                ;**************************************************************
-                br loop
 ;******************************************************************************
 ; scrolls the screen and adjusts the cursor
 scroll:         push r0
 
                 in r0, gpu_ctrl_reg
                 ori r0, 0b00100000
-                out r0, gpu_ctrl_reg
+                out r0, gpu_ctrl_reg    ; issue scroll request
 
-scroll_p:       in r0, gpu_ctrl_reg
+scroll_p:       in r0, gpu_ctrl_reg     ; wait for scroll to finish
                 ani r0, 32
                 bnz scroll_p
-                api p12, -80
+                api p12, -80            ; adjust the cursor pointer
 
                 pop r0
                 ret
 ;******************************************************************************
-; print char prints a char over the UART. The char must be placed in r0.
+; print_char prints a char over the UART. The char must be placed in r0.
 ; Additionally the UART must already be configured.
 print_char:     push r1
 
@@ -197,7 +206,9 @@ print_char_p:   in r1, uart_ctrl
 print_char_ret: pop r1
                 ret
 ;******************************************************************************
-; paint_char
+; paint_char prints a char to the VGA screen at the current cursor position.
+; It takes care of newlines and backspaces, and scrolling at the end of
+; the screen. The char must be placed in r0.
 paint_char:     cpi r0, newline         ; check to see if the char is a newline
                 bz paint_char_nl
                 cpi r0, backspace
@@ -596,5 +607,9 @@ peek_msg_1:     .string "Enter an i/o address to read from:\n> "
 
 poke_msg_1:     .string "Enter an i/o address to write to:\n> "
 poke_msg_2:     .string "Enter the data to write:\n> "
+
+empty_str:      .string ""
+
+error_msg:      .string "Invalid command!\n"
 
 buffer:         .ds 11
