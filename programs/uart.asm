@@ -23,4 +23,4 @@ loop:   in r1, uart_ctrl
         br loop
 ;******************************************************************************
         .data
-text:   .string "GitHub repo at: https://github.com/ept221/tinySoC\n"
+text:   .string "GitHub repo at: https://github.com/ept221/pet-on-a-chip\n"
