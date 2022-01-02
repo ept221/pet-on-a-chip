@@ -359,7 +359,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "delux pet on a chip.kicad_pro",
+    "filename": "pet on a chip.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -409,7 +409,7 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "delux pet on a chip.net",
+      "netlist": "pet on a chip.net",
       "specctra_dsn": "",
       "step": "",
       "vrml": ""
@@ -461,7 +461,7 @@
     ],
     [
       "00000000-0000-0000-0000-000060016783",
-      "FPGA"
+      "fpga"
     ]
   ],
   "text_variables": {}

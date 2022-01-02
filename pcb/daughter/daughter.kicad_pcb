@@ -1758,6 +1758,11 @@
       (net 49 "GNDA") (pinfunction "-") (pintype "passive") (tstamp 2923d83c-3334-4b85-acfa-e9f2eb6f5eb5))
     (pad "2" thru_hole circle locked (at 2 1.27) (size 1.378 1.378) (drill 0.87) (layers *.Cu *.Mask)
       (net 36 "Net-(C7-Pad2)") (pinfunction "+") (pintype "passive") (tstamp 73917165-0d82-4691-91ca-2eb1b8bbe05e))
+    (model "${KIPRJMOD}/3D/cma-4544pf-w.stp"
+      (offset (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 0))
+    )
   )
 
   (footprint "Potentiometer_SMD:Potentiometer_Bourns_3314J_Vertical" (layer "F.Cu")
