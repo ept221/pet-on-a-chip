@@ -1,4 +1,3 @@
 (sym_lib_table
-  (lib (name pet_on_a_chip)(type Legacy)(uri "${KIPRJMOD}/pet on a chip.lib")(options "")(descr ""))
-  (lib (name delux-pet-on-a-chip-rescue)(type Legacy)(uri "${KIPRJMOD}/delux pet on a chip-rescue.lib")(options "")(descr ""))
+  (lib (name "pet_on_a_chip")(type "KiCad")(uri "${KIPRJMOD}/pet on a chip.kicad_sym")(options "")(descr ""))
 )
