@@ -28,23 +28,30 @@ module servo(input wire clk,
 		endcase 
 	end
 	//***************************************************************
+	// The pulse width for the min angle on the servo is 580µs
+	// The pulse width for the max angle on the servo is 2200µs
+	// 2200µs - 580µs = 1620µs
+	// 1620µs / 256 = 6.33µs
+	// 1/16000000*x = 6.33 ==> x = 101
 	reg [7:0] prescaler;
 	reg scaled;
 	always @(posedge clk) begin
-		if(prescaler == 7'd94) begin
+		if(prescaler == 8'd101) begin
 			prescaler <= 0;
 			scaled <= 1;
 		end
 		else begin
-			prescaler <= prescaler + 7'd1;
+			prescaler <= prescaler + 8'd1;
 			scaled <= 0;
 		end
 	end
 	//***************************************************************
+	// Period of servo waveform is 20ms
+	// 6.33µs*y = 20ms ==> y = 3160
 	reg [11:0] counter;
 	always @(posedge clk) begin
 		if(scaled) begin
-			if(counter == 12'd3404) begin
+			if(counter == 12'd3160) begin
 				counter <= 0;
 			end
 			else begin
@@ -53,8 +60,9 @@ module servo(input wire clk,
 		end
 	end
 	//***************************************************************
+	// 6.33µs*z = 580µs ==> z = 92
 	always @(posedge clk) begin
-		servo_pin <= (counter < (12'd110 + servo));
+		servo_pin <= (counter < (12'd92 + servo));
 	end
 	//***************************************************************
 endmodule
