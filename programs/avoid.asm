@@ -3,14 +3,6 @@
         .define port_reg, 0x01
         .define pin_reg, 0x02
 
-        .define prescaler_l, 0x03
-        .define prescaler_h, 0x04
-        .define count_ctrl, 0x05
-
-        .define uart_baud, 0x0A
-        .define uart_ctrl, 0x0B
-        .define uart_buffer, 0x0C
-
         .define motor_control, 0x0D
         .define motor_enable, 0x0E
         .define motor_pwm0, 0x0F
@@ -20,9 +12,6 @@
 
         .define sonar_control, 0x12
         .define sonar_range, 0x13
-
-        .define gpu_addr, 0x2000
-        .define gpu_ctrl_reg, 0x80
 ;******************************************************************************
         .code
 

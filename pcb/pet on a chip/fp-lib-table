@@ -1,3 +1,0 @@
-(fp_lib_table
-  (lib (name "pet on a chip")(type KiCad)(uri "${KIPRJMOD}/pet on a chip.pretty")(options "")(descr ""))
-)
