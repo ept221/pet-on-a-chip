@@ -13,7 +13,7 @@ synth: soc/src/soc/top.v
 	yosys -p "synth_ice40 -json build/synth/hardware.json -top top"  soc/src/soc/top.v soc/src/counter_timer/*.v soc/src/cpu/*.v soc/src/d_ram_and_io/*.v soc/src/gpio/*.v soc/src/gpu/*.v soc/src/memory/*.v soc/src/uart/*.v soc/src/motor_controller/*.v soc/src/servo/*.v soc/src/sonar/*.v soc/src/pic/*.v
 pnr: build/synth/hardware.json
 	mkdir -p build/pnr
-	nextpnr-ice40 --hx8k --package bg121 --json build/synth/hardware.json --pcf soc/src/soc/pins.pcf --asc build/pnr/hardware.asc  --pcf-allow-unconstrained --freq 16 -r
+	nextpnr-ice40 --hx8k --package bg121 --json build/synth/hardware.json --pcf soc/src/soc/pins.pcf --pre-pack soc/src/soc/clocks.py --asc build/pnr/hardware.asc  --pcf-allow-unconstrained -r
 
 refresh:
 	find build/pnr -type f -not -name "hardware.asc" -delete
