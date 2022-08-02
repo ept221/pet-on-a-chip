@@ -209,34 +209,35 @@ def lexer(lines):
 def error(message, line):
     print("Error at line " + str(line[0][0]) + ": " + message)
 ##############################################################################################################
+# Parses an expression if it exists. Returns an expr if found, returns 0 if not, returns error if bad expr.
 def parse_expr(tokens, symbols, code, line):
     data = ["<expr>"]
     er = ["<error>"]
-    if not tokens:
-        return 0
+    if not tokens:                                              # If there are no tokens
+        return 0                                                    # Then we couldn't find an expresion
     ##################################################
     while(tokens):
         if(tokens[0][0] in {"<plus>", "<minus>"}):              # If we have an operator
-            data.append(tokens.pop(0))                          # Get the operator
-        elif(len(data) > 1):                                    # Else if we have a valid expression but the token we looked at wasn't an operator 
-            return data
-        if(len(data) > 1 and (not tokens)):                     # If we just saw an operator or don't have an expression yet, but we have no tokens
-            error("Expression missing number/symbol!",line)
+            data.append(tokens.pop(0))                              # Then get the operator
+        elif(len(data) > 1):                                    # Else if we currently have a valid expression captured, and the next token we just looked at wasn't an operator
+            return data                                             # Then return the valid expression
+        if(len(data) > 1 and (not tokens)):                     # If we just saw an operator but we have more tokens
+            error("Expression missing number/symbol!",line)         # Then return an error
             return er
-        if(tokens[0][0] not in {"<hex_num>", "<dec_num>", "<bin_num>", "<symbol>", "<lc>"}): # If we just saw an operator or don't have an expression yet, but next token isn't a number
+        if(tokens[0][0] not in {"<hex_num>", "<dec_num>", "<bin_num>", "<symbol>", "<lc>"}): # Either we haven't seen anything at all, or the last token we saw was an operator. If the current token isn't a number/symbol/lc
             if(tokens[0][0] in {"<plus>", "<minus>"}):
                 error("Expression has extra operator!",line)
                 return er
             if(tokens[0][0] == "<selector>"):
                 error("Expression has bad selector!",line)
                 return er
-            if(len(data) > 1):
-                error("Expression has bad identifier!",line)
+            if(len(data) > 1):                                  # If the last token we saw was an operator, but the current token isn't legal
+                error("Expression has bad identifier!",line)        # Then return an error
                 return er
-            else:
-                return 0
+            else:                                               # If we haven't seen anything at all, and the current token isn't a legal start of one
+                return 0                                            # The we couldn't find an expresion 
         data.append(tokens.pop(0))                              # Get the number
-        if(tokens and tokens[0][0] == "<selector>"):
+        if(tokens and tokens[0][0] == "<selector>"):            # Capture a selector if it exists
             data.append(tokens.pop(0))
 
     return data
@@ -1010,7 +1011,7 @@ def parse_code(tokens, symbols, code, line):
                         error("Instruction branches below address 0",line)
                         return er
                     if(numb + code.code_address > preferences.i_ram_len):
-                        error("Instruction branches above address asdf " + str(preferences.i_ram_len),line)
+                        error("Instruction branches above address " + str(preferences.i_ram_len),line)
                         return er
                     numb = numb if (numb >= 0) else (511 - abs(numb) + 1)
                     instruction = instruction[:3] + format(numb,'09b') + instruction[12:]
