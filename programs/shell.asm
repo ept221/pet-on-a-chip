@@ -7,6 +7,8 @@
                 .define port_reg, 0x01
                 .define pin_reg, 0x02
 
+                .define servo, 0x11
+
                 .define gpu_addr, 0x2000
                 .define gpu_ctrl_reg, 0x80
 
@@ -19,6 +21,9 @@
 
 init:           ldi r14, 0x00           ; setup the stack pointer
                 ldi r15, 0x07
+
+                ldi r0, 128
+                out r0, servo
 
                 ldi r0, 8               ; set the baud rate to 115200
                 out r0, uart_baud       
