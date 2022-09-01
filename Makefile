@@ -21,3 +21,5 @@ refresh:
 
 clean:
 	rm -rf build
+
+.PHONY: lint sim synth pnr refresh clean
