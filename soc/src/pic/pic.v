@@ -48,7 +48,7 @@ module pic(input wire clk,
                     dout <= vect_0l;
                 end
             end
-            VECT_0L: begin
+            VECT_0H: begin
                 if(w_en) begin
                     vect_0h <= din;
                 end
