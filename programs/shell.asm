@@ -9,6 +9,9 @@
 
                 .define servo, 0x11
 
+                .define sonar_control, 0x12
+                .define sonar_range, 0x13
+
                 .define gpu_addr, 0x2000
                 .define gpu_ctrl_reg, 0x80
 
@@ -16,7 +19,7 @@
                 .define backspace, 8
                 .define underscore, 95
                 .define space, 32
-;******************************************************************************         
+;******************************************************************************
                 .code
 
 init:           ldi r14, 0x00           ; setup the stack pointer
@@ -42,7 +45,7 @@ init:           ldi r14, 0x00           ; setup the stack pointer
                 ldi r3, welcome[h]
                 call print_str
                 call paint_str
-                ;***************************************************************
+                ;**************************************************************
 
 loop:           ldi r2, prompt[l]       ; print the prompt
                 ldi r3, prompt[h]
@@ -72,6 +75,12 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 call str_cmp
                 cpi r6, 0
                 bz poke
+
+                ldi r4, cmd_sonar[l]    ; if "sonar" run sonar
+                ldi r5, cmd_sonar[h]
+                call str_cmp
+                cpi r6, 0
+                bz sonar
 
                 ldi r4, cmd_clear[l]    ; if "clear" run clear
                 ldi r5, cmd_clear[h]
@@ -181,6 +190,33 @@ clear_p:        sri r0, p12
 
                 ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
                 ldi r13, gpu_addr[h]
+                br loop
+                ;**************************************************************
+sonar:          ldi r0, 1               ; send out sonar pulse
+                out r0, sonar_control
+
+sonar_p:        in r0, sonar_control    ; wait for reading to complete
+                ani r0, 1
+                bnz sonar_p
+
+                in r0, sonar_range      ; read the range
+
+                ldi r4, buffer[l]
+                ldi r5, buffer[h]
+                call itoa               ; convert it to a string
+
+                ldi r2, buffer[l]       ; print and paint the string
+                ldi r3, buffer[h]
+                call print_str
+                call paint_str
+                ldi r0, newline
+                call print_char
+                call paint_char
+
+                in r5, uart_ctrl        ; poll for key press
+                ani r5, 1
+                bz sonar
+                in r0, uart_buffer      ; consume the char
                 br loop
 ;******************************************************************************
 ; scrolls the screen and adjusts the cursor
@@ -600,11 +636,13 @@ prompt:         .string "> "
 
 cmd_peek:       .string "peek"
 cmd_poke:       .string "poke"
+cmd_sonar:      .string "sonar"
 cmd_clear:      .string "clear"
 cmd_hlp:        .string "help"
 
 hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
                 .ostring "Type \"poke\" to write to an i/o register\n"
+                .ostring "Type \"sonar\" to take sonar readings\n"
                 .ostring "Type \"clear\" to clear the screen\n"
                 .string  "Type \"help\" to display this message\n"
 
