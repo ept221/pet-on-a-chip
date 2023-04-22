@@ -594,19 +594,19 @@ atoi_sane:      pop r6
 ;******************************************************************************
                 .data
 welcome:        .ostring "Welcome to Pet on a Chip!\n"
-                .string  "Type \"h\" for help.\n"
+                .string  "Type \"help\" for command menu.\n"
 
 prompt:         .string "> "
 
 cmd_peek:       .string "peek"
 cmd_poke:       .string "poke"
 cmd_clear:      .string "clear"
-cmd_hlp:        .string "h"
+cmd_hlp:        .string "help"
 
 hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
                 .ostring "Type \"poke\" to write to an i/o register\n"
                 .ostring "Type \"clear\" to clear the screen\n"
-                .string  "Type \"h\" to display this message\n"
+                .string  "Type \"help\" to display this message\n"
 
 peek_msg_1:     .string "Enter an i/o address to read from:\n> "
 
