@@ -21,7 +21,9 @@
                 .define space, 32
 ;******************************************************************************
                 .code
-
+;##############################################################################
+; Shell Main Function:
+;******************************************************************************
 init:           ldi r14, 0x00           ; setup the stack pointer
                 ldi r15, 0x07
 
@@ -72,7 +74,6 @@ loop:           ldi r2, prompt[l]       ; print the prompt
 
                 ldi r1, 0               ; set our command counter to 0
 
-
                 ldi r4, tbl_0[l]        ; get the start of the table
                 ldi r5, tbl_0[h]
 
@@ -81,7 +82,14 @@ search:         call str_cmp            ; check if the command matches
                 bnz nope                ; branch if not
                 ldr r6, p4, 10          ; else load the command address
                 ldr r7, p4, 11
+
+                ; A hacky way to do an indirect call
+                ldi r8, return[l]
+                push r8
+                ldi r8, return[h]
+                push r8
                 jmpi p6                 ; jump to the command
+return:         br loop
 
 nope:           cmp r1, r0              ; check to see if we have gone through the whole table
                 bnz next                ; if not, go to the next command in the table
@@ -95,13 +103,9 @@ nope:           cmp r1, r0              ; check to see if we have gone through t
 next:           api p4, 12              ; go to the next command in the table
                 adi r1, 1
                 br search
-                ;**************************************************************
-help:           ldi r2, hlp_msg_1[l]    ; print help message
-                ldi r3, hlp_msg_1[h]
-                call print_str
-                call paint_str
-                br loop
-                ;**************************************************************
+;##############################################################################
+; Shell Commands:
+;******************************************************************************
 peek:           ldi r2, peek_msg_1[l]   ; prompt for address
                 ldi r3, peek_msg_1[h]
                 call print_str
@@ -130,8 +134,8 @@ peek:           ldi r2, peek_msg_1[l]   ; prompt for address
                 ldi r0, newline
                 call print_char
                 call paint_char
-                br loop
-                ;**************************************************************
+                ret
+;******************************************************************************
 poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 ldi r3, poke_msg_1[h]
                 call print_str
@@ -167,26 +171,8 @@ poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 ldi r3, 0x10            ; put the i/o offset into the upper reg of the pair
                 str r0, p2, 0           ; write to the register
 
-                br loop
-                ;**************************************************************
-clear:          ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
-                ldi r13, gpu_addr[h]
-                ldi r9, 0               ; the col counter
-                ldi r0, 32              ; This clears the screen by filling
-                ldi r2, 0x60            ; it up with spaces
-                ldi r3, 0x09
-
-clear_p:        sri r0, p12
-                api p2, -1
-                cpi r3, 0
-                bnz clear_p
-                cpi r2, 0
-                bnz clear_p
-
-                ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
-                ldi r13, gpu_addr[h]
-                br loop
-                ;**************************************************************
+                ret
+;******************************************************************************
 sonar:          ldi r0, 1               ; send out sonar pulse
                 out r0, sonar_control
 
@@ -212,7 +198,33 @@ sonar_p:        in r0, sonar_control    ; wait for reading to complete
                 ani r5, 1
                 bz sonar
                 in r0, uart_buffer      ; consume the char
-                br loop
+                ret
+;******************************************************************************
+clear:          ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
+                ldi r13, gpu_addr[h]
+                ldi r9, 0               ; the col counter
+                ldi r0, 32              ; This clears the screen by filling
+                ldi r2, 0x60            ; it up with spaces
+                ldi r3, 0x09
+
+clear_p:        sri r0, p12
+                api p2, -1
+                cpi r3, 0
+                bnz clear_p
+                cpi r2, 0
+                bnz clear_p
+
+                ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
+                ldi r13, gpu_addr[h]
+                ret
+;******************************************************************************
+help:           ldi r2, hlp_msg_1[l]    ; print help message
+                ldi r3, hlp_msg_1[h]
+                call print_str
+                call paint_str
+                ret
+;##############################################################################
+; Utility Functions:
 ;******************************************************************************
 ; scrolls the screen and adjusts the cursor
 scroll:         push r0
@@ -624,36 +636,32 @@ atoi_sane:      pop r6
                 ret
 ;******************************************************************************
                 .data
-;******************************************************************************    
-; The command table:
+;##############################################################################
+; The Command Table:
+;******************************************************************************
 tbl_len:        .db 5
 tbl_0:          .string "peek"
                 .org tbl_0 + 10
-                .db peek[l]
-                .db peek[h]
+                .db peek[l], peek[h]
 
 tbl_1:          .string "poke"
                 .org tbl_1 + 10
-                .db poke[l]
-                .db poke[h]
+                .db poke[l], poke[h]
 
 tbl_2:          .string "sonar"
                 .org tbl_2 + 10
-                .db sonar[l]
-                .db sonar[h]
+                .db sonar[l], sonar[h]
 
 tbl_3:          .string "clear"
                 .org tbl_3 + 10
-                .db clear[l]
-                .db clear[h]
+                .db clear[l], clear[h]
 
 tbl_4:          .string "help"
                 .org tbl_4 + 10
-                .db help[l]
-                .db help[h]
-;******************************************************************************
+                .db help[l], help[h]
+;##############################################################################
 ; Message strings:
-
+;******************************************************************************
 welcome:        .ostring "Welcome to Pet on a Chip!\n"
                 .string  "Type \"help\" for command menu.\n"
 
@@ -673,6 +681,7 @@ poke_msg_2:     .string "Enter the data to write:\n> "
 empty_str:      .string ""
 
 error_msg:      .string "Invalid command!\n"
-;******************************************************************************
+;##############################################################################
 ; Buffer:
+;******************************************************************************
 buffer:         .ds 11
