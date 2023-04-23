@@ -58,35 +58,6 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 call get_str
                 call strip_str          ; strip the string
 
-                ldi r4, cmd_hlp[l]      ; if "h" run help
-                ldi r5, cmd_hlp[h]
-                call str_cmp
-                cpi r6, 0
-                bz help
-
-                ldi r4, cmd_peek[l]     ; if "peek" run peek
-                ldi r5, cmd_peek[h]
-                call str_cmp
-                cpi r6, 0
-                bz peek
-
-                ldi r4, cmd_poke[l]     ; if "poke" run poke
-                ldi r5, cmd_poke[h]
-                call str_cmp
-                cpi r6, 0
-                bz poke
-
-                ldi r4, cmd_sonar[l]    ; if "sonar" run sonar
-                ldi r5, cmd_sonar[h]
-                call str_cmp
-                cpi r6, 0
-                bz sonar
-
-                ldi r4, cmd_clear[l]    ; if "clear" run clear
-                ldi r5, cmd_clear[h]
-                call str_cmp
-                cpi r6, 0
-                bz clear
 
                 ldi r4, empty_str[l]    ; if empty go get another input
                 ldi r5, empty_str[h]
@@ -94,12 +65,36 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 cpi r6, 0
                 bz loop
 
+                ldi r4, tbl_len[l]      ; get the command table length
+                ldi r5, tbl_len[h]
+                lri r0, p4
+                adi r0, -1              ; get the last index
+
+                ldi r1, 0               ; set our command counter to 0
+
+
+                ldi r4, tbl_0[l]        ; get the start of the table
+                ldi r5, tbl_0[h]
+
+search:         call str_cmp            ; check if the command matches
+                cpi r6, 0
+                bnz nope                ; branch if not
+                ldr r6, p4, 10          ; else load the command address
+                ldr r7, p4, 11
+                jmpi p6                 ; jump to the command
+
+nope:           cmp r1, r0              ; check to see if we have gone through the whole table
+                bnz next                ; if not, go to the next command in the table
+
                 ldi r2, error_msg[l]    ; else, print an error message
                 ldi r3, error_msg[h]
                 call print_str
                 call paint_str
+                br loop
 
-                br loop                 ; and go get another input
+next:           api p4, 12              ; go to the next command in the table
+                adi r1, 1
+                br search
                 ;**************************************************************
 help:           ldi r2, hlp_msg_1[l]    ; print help message
                 ldi r3, hlp_msg_1[h]
@@ -629,16 +624,40 @@ atoi_sane:      pop r6
                 ret
 ;******************************************************************************
                 .data
+;******************************************************************************    
+; The command table:
+tbl_len:        .db 5
+tbl_0:          .string "peek"
+                .org tbl_0 + 10
+                .db peek[l]
+                .db peek[h]
+
+tbl_1:          .string "poke"
+                .org tbl_1 + 10
+                .db poke[l]
+                .db poke[h]
+
+tbl_2:          .string "sonar"
+                .org tbl_2 + 10
+                .db sonar[l]
+                .db sonar[h]
+
+tbl_3:          .string "clear"
+                .org tbl_3 + 10
+                .db clear[l]
+                .db clear[h]
+
+tbl_4:          .string "help"
+                .org tbl_4 + 10
+                .db help[l]
+                .db help[h]
+;******************************************************************************
+; Message strings:
+
 welcome:        .ostring "Welcome to Pet on a Chip!\n"
                 .string  "Type \"help\" for command menu.\n"
 
 prompt:         .string "> "
-
-cmd_peek:       .string "peek"
-cmd_poke:       .string "poke"
-cmd_sonar:      .string "sonar"
-cmd_clear:      .string "clear"
-cmd_hlp:        .string "help"
 
 hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
                 .ostring "Type \"poke\" to write to an i/o register\n"
@@ -654,5 +673,6 @@ poke_msg_2:     .string "Enter the data to write:\n> "
 empty_str:      .string ""
 
 error_msg:      .string "Invalid command!\n"
-
+;******************************************************************************
+; Buffer:
 buffer:         .ds 11
