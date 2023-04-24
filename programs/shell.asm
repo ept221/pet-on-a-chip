@@ -43,11 +43,6 @@ init:           ldi r14, 0x00           ; setup the stack pointer
                 ldi r0, 0b11111
                 out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
 
-                mov r0, r14
-                call print_char
-                mov r0, r15
-                call print_char
-
                 ldi r2, welcome[l]      ; print the welcome
                 ldi r3, welcome[h]
                 call print_str
