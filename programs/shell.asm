@@ -352,6 +352,9 @@ scroll_p:       in r0, gpu_ctrl_reg     ; wait for scroll to finish
 ;******************************************************************************
 ; print_char prints a char over the UART. The char must be placed in r0.
 ; Additionally the UART must already be configured.
+;
+; r0: char
+
 print_char:     push r1
 
 print_char_p:   in r1, uart_ctrl
@@ -366,6 +369,9 @@ print_char_ret: pop r1
 ; paint_char prints a char to the VGA screen at the current cursor position.
 ; It takes care of newlines and backspaces, and scrolling at the end of
 ; the screen. The char must be placed in r0.
+;
+; r0: char
+
 paint_char:     push r5
                 cpi r0, newline         ; check to see if the char is a newline
                 bz paint_char_nl
@@ -418,6 +424,9 @@ paint_char_ret: pop r5
 ;******************************************************************************
 ; paint_str prints a string to the VGA screen at the current cursor position.
 ; A pointer to the strin must be in the register pair p2.
+;
+; p2: string ptr
+
 paint_str:      push r0
                 push r2
                 push r3
@@ -435,6 +444,9 @@ paint_str_ret:  pop r3
 ;******************************************************************************
 ; print_str prints a string over the UART. A pointer to the string must be in
 ; the register pair p2. Additionally, the UART must already be configured.
+;
+; p2: string ptr
+
 print_str:      push r0
                 push r1
                 push r2
@@ -458,7 +470,7 @@ print_str_ret:  pop r3
 ;
 ; p0: length of buffer
 ; p2: input buffer
-;
+
 get_str:        push r0
                 push r1
                 push r2
@@ -534,6 +546,9 @@ get_str_ret:    ldi r4, 0               ; add the null terminator to the string
 ;******************************************************************************
 ; strip_str strips the newline from a string. A pointer to the string must
 ; be in register pair p2.
+;
+; p2: string ptr
+
 strip_str:      push r0
                 push r2
                 push r3
@@ -554,6 +569,11 @@ strip_str_p:    lri r0, p2              ; look for the newline
 ; str_cmp compares two strings. The first string is pointed to by p2, and the
 ; second string is pointed to by p4. If the strings are equal r6 is set to 0x00,
 ; otherwise it is set to 0xff
+;
+; p2: first string ptr
+; p4: second string ptr
+; r6: result
+
 str_cmp:        push r0
                 push r1
                 push r2
@@ -580,9 +600,9 @@ str_cmp_ret:    pop r5
                 pop r0
                 ret
 ;******************************************************************************
-; r0 is the multiplicand
-; r1 is the multiplier
-; r2 and r3 will hold the results
+; r0: the multiplicand
+; r1: the multiplier
+; p2: the result
         
 mult:           push r0
                 push r1
@@ -615,10 +635,10 @@ mult_end:       pop r5
                 pop r0
                 ret
 ;******************************************************************************
-; r0 holds the dividend
-; r1 holds the divisor
-; r2 holds the quotient
-; r3 holds the remainder
+; r0: the dividend
+; r1: the divisor
+; r2: the quotient
+; r3: the remainder
 
 divmod:         push r0
                 push r4
@@ -652,8 +672,9 @@ divmod_end:     pos
                 pop r0              ; restore the divisor
                 ret
 ;******************************************************************************
-; r0 holds the int
-; p4 holds the string pointer
+; r0: the int
+; p4: string ptr
+
 itoa:           push r0
                 push r1
                 push r2
@@ -711,8 +732,9 @@ itoa_ret:       pop r7
                 pop r0
                 ret
 ;******************************************************************************
-; r0 will hold the result
-; p4 holds the pointer to the string
+; r0: the result
+; p4: string ptr
+
 atoi:           push r1
                 push r2
                 push r3
