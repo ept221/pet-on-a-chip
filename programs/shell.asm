@@ -38,10 +38,15 @@ init:           ldi r14, 0x00           ; setup the stack pointer
 
                 ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
                 ldi r13, gpu_addr[h]
-                ldi r9, 0               ; the col counter
+                ldi r11, 0              ; the col counter
 
                 ldi r0, 0b11111
                 out r0, dir_reg         ; Set the first 5 bits of the i/o port to output
+
+                mov r0, r14
+                call print_char
+                mov r0, r15
+                call print_char
 
                 ldi r2, welcome[l]      ; print the welcome
                 ldi r3, welcome[h]
@@ -55,11 +60,11 @@ loop:           ldi r2, prompt[l]       ; print the prompt
                 call paint_str
 
                 ldi r0, 11              ; get user input
+                ldi r1, 0
                 ldi r2, buffer[l]
                 ldi r3, buffer[h]
                 call get_str
                 call strip_str          ; strip the string
-
 
                 ldi r4, empty_str[l]    ; if empty go get another input
                 ldi r5, empty_str[h]
@@ -106,12 +111,20 @@ next:           api p4, 12              ; go to the next command in the table
 ;##############################################################################
 ; Shell Commands:
 ;******************************************************************************
-peek:           ldi r2, peek_msg_1[l]   ; prompt for address
+peek:           push r0
+                push r1
+                push r2
+                push r3
+                push r4
+                push r5
+
+                ldi r2, peek_msg_1[l]   ; prompt for address
                 ldi r3, peek_msg_1[h]
                 call print_str
                 call paint_str
 
                 ldi r0, 11              ; get user input
+                ldi r1, 0
                 ldi r2, buffer[l]
                 ldi r3, buffer[h]
                 call get_str
@@ -134,14 +147,30 @@ peek:           ldi r2, peek_msg_1[l]   ; prompt for address
                 ldi r0, newline
                 call print_char
                 call paint_char
+
+                pop r5
+                pop r4
+                pop r3
+                pop r2
+                pop r1
+                pop r0
                 ret
 ;******************************************************************************
-poke:           ldi r2, poke_msg_1[l]   ; prompt for address
+poke:           push r0
+                push r1
+                push r2
+                push r3
+                push r4
+                push r5
+                push r6
+
+                ldi r2, poke_msg_1[l]   ; prompt for address
                 ldi r3, poke_msg_1[h]
                 call print_str
                 call paint_str
 
                 ldi r0, 11              ; get user input
+                ldi r1, 0
                 ldi r2, buffer[l]
                 ldi r3, buffer[h]
                 call get_str
@@ -158,6 +187,7 @@ poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 call paint_str
 
                 ldi r0, 11              ; get user input
+                ldi r1, 0
                 ldi r2, buffer[l]
                 ldi r3, buffer[h]
                 call get_str
@@ -171,9 +201,22 @@ poke:           ldi r2, poke_msg_1[l]   ; prompt for address
                 ldi r3, 0x10            ; put the i/o offset into the upper reg of the pair
                 str r0, p2, 0           ; write to the register
 
+                pop r6
+                pop r5
+                pop r4
+                pop r3
+                pop r2
+                pop r1
+                pop r0
                 ret
 ;******************************************************************************
-sonar:          ldi r0, 1               ; send out sonar pulse
+sonar:          push r0
+                push r2
+                push r3
+                push r4
+                push r5
+
+sonar_main:     ldi r0, 1               ; send out sonar pulse
                 out r0, sonar_control
 
 sonar_p:        in r0, sonar_control    ; wait for reading to complete
@@ -196,13 +239,23 @@ sonar_p:        in r0, sonar_control    ; wait for reading to complete
 
                 in r5, uart_ctrl        ; poll for key press
                 ani r5, 1
-                bz sonar
+                bz sonar_main
                 in r0, uart_buffer      ; consume the char
+
+                pop r5
+                pop r4
+                pop r3
+                pop r2
+                pop r0
                 ret
 ;******************************************************************************
-clear:          ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
+clear:          push r0
+                push r2
+                push r3
+
+                ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
                 ldi r13, gpu_addr[h]
-                ldi r9, 0               ; the col counter
+                ldi r11, 0               ; the col counter
                 ldi r0, 32              ; This clears the screen by filling
                 ldi r2, 0x60            ; it up with spaces
                 ldi r3, 0x09
@@ -216,12 +269,22 @@ clear_p:        sri r0, p12
 
                 ldi r12, gpu_addr[l]    ; setup the pointer to the v-ram
                 ldi r13, gpu_addr[h]
+
+                pop r3
+                pop r2
+                pop r0
                 ret
 ;******************************************************************************
-help:           ldi r2, hlp_msg_1[l]    ; print help message
+help:           push r2
+                push r3
+
+                ldi r2, hlp_msg_1[l]    ; print help message
                 ldi r3, hlp_msg_1[h]
                 call print_str
                 call paint_str
+
+                pop r3
+                pop r2
                 ret
 ;##############################################################################
 ; Utility Functions:
@@ -257,7 +320,8 @@ print_char_ret: pop r1
 ; paint_char prints a char to the VGA screen at the current cursor position.
 ; It takes care of newlines and backspaces, and scrolling at the end of
 ; the screen. The char must be placed in r0.
-paint_char:     cpi r0, newline         ; check to see if the char is a newline
+paint_char:     push r5
+                cpi r0, newline         ; check to see if the char is a newline
                 bz paint_char_nl
                 cpi r0, backspace
                 bz paint_char_bs
@@ -272,18 +336,18 @@ paint_char:     cpi r0, newline         ; check to see if the char is a newline
 paint_char_s:   call scroll
 
 paint_char_r0:  sri r0, p12             
-                cpi r9, 80
+                cpi r11, 80
                 bnz paint_char_reg
-                ldi r9, 0
+                ldi r11, 0
                 br paint_char_ret
 
-paint_char_reg: adi r9, 1
+paint_char_reg: adi r11, 1
                 br paint_char_ret
 
-paint_char_nl:  sub r12, r9             ; need to go back to the beginning of the line
+paint_char_nl:  sub r12, r11            ; need to go back to the beginning of the line
                 aci r13, -1             ; this is a hack that does r13 - 0 with borrow
                 api p12, 80             ; then add 80 to go to the next line
-                ldi r9, 0               ; and reset the column counter to 0
+                ldi r11, 0              ; and reset the column counter to 0
 
                 cpi r13, 41             ; (gpu_addr + 80*30 - 1)[h]
                 cc scroll
@@ -296,14 +360,15 @@ paint_char_bs:  api p12, -1             ; move back the char pointer
                 ldi r5, 32              
                 str r5, p12, 0          ; and overwrite the data with a space
                 
-                cpi r9, 0               ; if we're at the beginning of the row
+                cpi r11, 0              ; if we're at the beginning of the row
                 bnz paint_char_sub
-                ldi r9, 79              ; set column counter to end of previous row
+                ldi r11, 79             ; set column counter to end of previous row
                 br paint_char_ret
 
-paint_char_sub: adi r9, -1              ; else decriment the column counter
+paint_char_sub: adi r11, -1             ; else decriment the column counter
 
-paint_char_ret: ret
+paint_char_ret: pop r5
+                ret
 ;******************************************************************************
 ; paint_str prints a string to the VGA screen at the current cursor position.
 ; A pointer to the strin must be in the register pair p2.
@@ -344,6 +409,10 @@ print_str_ret:  pop r3
 ; get_str reads a newline terminated string from the UART and echos it back.
 ; A pointer to the buffer must be in the register pair p2, and the length of
 ; the buffer must be in the register pair p0.
+;
+; p0: length of buffer
+; p2: input buffer
+;
 get_str:        push r0
                 push r1
                 push r2
