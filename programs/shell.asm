@@ -1,11 +1,18 @@
 ;******************************************************************************
-                .define uart_baud, 0x0A
-                .define uart_ctrl, 0x0B
-                .define uart_buffer, 0x0C
-
                 .define dir_reg, 0x00
                 .define port_reg, 0x01
                 .define pin_reg, 0x02
+
+                .define prescaler_l, 0x03
+                .define prescaler_h, 0x04
+                .define count_ctrl, 0x05
+
+                .define top_isr_vec_reg_l, 0x16
+                .define top_isr_vec_reg_h, 0x17
+
+                .define uart_baud, 0x0A
+                .define uart_ctrl, 0x0B
+                .define uart_buffer, 0x0C
 
                 .define servo, 0x11
 
@@ -280,6 +287,50 @@ help:           push r2
 
                 pop r3
                 pop r2
+                ret
+;******************************************************************************
+blink:          push r0
+                
+                in r0, port_reg                 ; save the current io status
+                push r0
+
+                ldi r0, isr[l]                  ; setup the top isr vector
+                out r0, top_isr_vec_reg_l
+                ldi r0, isr[h]
+                out r0, top_isr_vec_reg_h
+
+                ldi r0, 36
+                out r0, prescaler_l             ; set LSBs of prescaler
+
+                ldi r0, 244
+                out r0, prescaler_h             ; set MSPs of prescaler
+
+                ldi r0, 0b00010010
+                out r0, count_ctrl              ; set pwm mode, set top interrupt
+
+                ssr 8                           ; enable interrupts
+
+blink_p:        in r0, uart_ctrl                ; poll for key press
+                ani r0, 1
+                bz blink_p
+                in r0, uart_buffer              ; consume the char
+
+                csr 0                           ; disable interrupts
+
+                pop r0                          ; restore the io status
+                out r0, port_reg
+
+                pop r0
+                ret
+;------------------------------------------------------------------------------
+isr:            pus
+                push r0
+                in r0, port_reg                 ; read pin register
+                xoi r0, 1                       ; toggle the led bit
+                out r0, port_reg                ; write to the port register
+                pop r0
+                pos
+                ssr 8                           ; enable interrupts
                 ret
 ;##############################################################################
 ; Utility Functions:
@@ -703,7 +754,7 @@ atoi_sane:      pop r6
 ;##############################################################################
 ; The Command Table:
 ;******************************************************************************
-tbl_len:        .db 5
+tbl_len:        .db 6
 tbl_0:          .string "peek"
                 .org tbl_0 + 10
                 .db peek[l], peek[h]
@@ -723,6 +774,10 @@ tbl_3:          .string "clear"
 tbl_4:          .string "help"
                 .org tbl_4 + 10
                 .db help[l], help[h]
+
+tbl_5:          .string "blink"
+                .org tbl_5 + 10
+                .db blink[l], blink[h]
 ;##############################################################################
 ; Message strings:
 ;******************************************************************************
@@ -734,6 +789,7 @@ prompt:         .string "> "
 hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
                 .ostring "Type \"poke\" to write to an i/o register\n"
                 .ostring "Type \"sonar\" to take sonar readings\n"
+                .ostring "Type \"blink\" to blink an LED\n"
                 .ostring "Type \"clear\" to clear the screen\n"
                 .string  "Type \"help\" to display this message\n"
 
