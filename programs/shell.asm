@@ -16,6 +16,13 @@
 
                 .define servo, 0x11
 
+                .define motor_control, 0x0D
+                .define motor_enable, 0x0E
+                .define motor_0_sp, 0x0F
+                .define motor_1_sp, 0x10
+                .define motor_0_fb, 0x11
+                .define motor_1_fb, 0x12
+
                 .define sonar_control, 0x12
                 .define sonar_range, 0x13
 
@@ -331,6 +338,78 @@ isr:            pus
                 pop r0
                 pos
                 ssr 8                           ; enable interrupts
+                ret
+;******************************************************************************
+drive:          push r0
+                push r1
+                push r2
+                push r3
+
+                ldi r2, drive_msg[l]            ; print the drive instructions
+                ldi r3, drive_msg[h]
+                call print_str
+                call paint_str
+
+                ldi r2, 0
+
+                ldi r0, 1
+                out r0, motor_enable
+
+drive_p:        in r0, uart_ctrl                ; poll for full rx buffer
+                ani r0, 1
+                bz drive_p
+
+                in r0, uart_buffer              ; capture the data
+
+                cpi r0, 115                     ; 's'   stop
+                bz drive_off
+                cpi r0, 97                      ; 'a'   ccw
+                bz drive_ccw
+                cpi r0, 100                     ; 'd'   cw
+                bz drive_cw
+                cpi r0, 119                     ; 'f'   forwards
+                bz drive_f
+                cpi r0, 120                     ; 'x'   backwards
+                bz drive_b
+                cpi r0, 113                     ; 'q'   quit
+                bz drive_quit
+                br drive_p
+
+drive_quit:     ldi r2, 1
+drive_off:      ldi r0, 0b00001111
+                ldi r1, 0
+                br drive_write
+
+drive_ccw:      ldi r0, 0b00001001
+                ldi r1, 40
+                br drive_write
+
+drive_cw:       ldi r0, 0b00000110
+                ldi r1, 40
+                br drive_write
+
+drive_f:        ldi r0, 0b00000101
+                ldi r1, 40
+                br drive_write
+
+drive_b:        ldi r0, 0b00001010
+                ldi r1, 40
+                br drive_write
+
+drive_write:    out r1, motor_0_sp
+                out r1, motor_1_sp
+                out r0, motor_control
+                cpi r2, 1
+                bz drive_ret
+                br drive_p     
+
+drive_ret:      ldi r0, 0
+                out r0, motor_enable
+
+                pop r3
+                pop r2
+                pop r1
+                pop r0
                 ret
 ;##############################################################################
 ; Utility Functions:
@@ -776,7 +855,7 @@ atoi_sane:      pop r6
 ;##############################################################################
 ; The Command Table:
 ;******************************************************************************
-tbl_len:        .db 6
+tbl_len:        .db 7
 tbl_0:          .string "peek"
                 .org tbl_0 + 10
                 .db peek[l], peek[h]
@@ -800,6 +879,10 @@ tbl_4:          .string "help"
 tbl_5:          .string "blink"
                 .org tbl_5 + 10
                 .db blink[l], blink[h]
+
+tbl_6:          .string "drive"
+                .org tbl_6 + 10
+                .db drive[l], drive[h]
 ;##############################################################################
 ; Message strings:
 ;******************************************************************************
@@ -812,6 +895,7 @@ hlp_msg_1:      .ostring "Type \"peek\" to read an i/o register\n"
                 .ostring "Type \"poke\" to write to an i/o register\n"
                 .ostring "Type \"sonar\" to take sonar readings\n"
                 .ostring "Type \"blink\" to blink an LED\n"
+                .ostring "Type \"drive\" to drive me\n"
                 .ostring "Type \"clear\" to clear the screen\n"
                 .string  "Type \"help\" to display this message\n"
 
@@ -819,6 +903,14 @@ peek_msg_1:     .string "Enter an i/o address to read from:\n> "
 
 poke_msg_1:     .string "Enter an i/o address to write to:\n> "
 poke_msg_2:     .string "Enter the data to write:\n> "
+
+drive_msg:      .ostring "Drive commands:\n"
+                .ostring "w: forward\n"
+                .ostring "x: backward\n"
+                .ostring "d: cw\n"
+                .ostring "a: ccw\n"
+                .ostring "s: stop\n"
+                .ostring "q: quit\n"
 
 empty_str:      .string ""
 
