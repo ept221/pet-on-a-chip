@@ -64,7 +64,7 @@ module sonar(input clk,
     // We can calulate the max error as follows: 35000(0.006698 - 219/32768) which is
     // about 0.5 inches.
     reg [15:0] count = 0;
-    reg [23:0] inches = count*219;     
+    wire [23:0] inches = count*219;     
     // The upper 9 bits are the integer portion
     // The lower 15 bits are the fractional portion
     // Since the maximum range is just under 234 inches
