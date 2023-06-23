@@ -37,10 +37,16 @@ module servo(input wire clk,
     // 1620µs / 255 = 6.35µs                    ; 255 steps, 6.33µs per step
     // 1/16000000*x = 6.35 ==> x = 102          ; use a prescaler of 102 to get a tick every 6.35µs
     
+    // (1/f)*x = 6.35us ==> x = 6.35*f
+
+    parameter CLK_FREQ = 16000000;
+    localparam SCALE_FACTOR = $rtoi($ceil(0.00000635*CLK_FREQ));
+    wire [7:0] scale_factor = SCALE_FACTOR;
+
     reg [7:0] prescaler;
     reg scaled;
     always @(posedge clk) begin
-        if(prescaler == 8'd102) begin
+        if(prescaler == scale_factor) begin
             prescaler <= 0;
             scaled <= 1;
         end

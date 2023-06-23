@@ -210,10 +210,16 @@ module motor_controller(input wire clk,
 	//***************************************************************
 	// Sample window generation. Strobe asserts every 0.1 seconds
 	// for a single clock cycle
-	reg [20:0] x = 0;
+
+	parameter CPU_FREQ = 16000000;
+	parameter WIDTH = $clog2(CPU_FREQ);
+
+	wire [WIDTH:0] strobe_scale_factor = CPU_FREQ;
+
+	reg [WIDTH:0] x = 0;
 	reg strobe = 0;
 	always @(posedge clk) begin
-		if(x == 21'd1600000) begin
+		if(x == strobe_scale_factor) begin
 			x <= 0;
 			strobe <= 1;
 		end
