@@ -45,7 +45,7 @@ module servo(input wire clk,
     wire [WIDTH:0] scale_factor = SCALE_FACTOR;
 
     reg [WIDTH:0] prescaler;
-    reg scaled;
+    reg scaled = 0;
     always @(posedge clk) begin
         if(prescaler == scale_factor) begin
             prescaler <= 0;

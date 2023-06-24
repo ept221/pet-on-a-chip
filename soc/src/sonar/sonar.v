@@ -32,7 +32,7 @@ module sonar(input clk,
         endcase
     end
 
-    wire cond = (((!echo) || (count == 16'h88b8)) && (state == 2'b10) && p_out);
+    wire cond = (((!echo) || (count == 16'h88b8)) && (state == 2'b10) && scaled);
     always @(posedge clk) begin
         if(cond) begin
             status <= 8'd0;
@@ -43,17 +43,28 @@ module sonar(input clk,
     end
     //*********************************************
     // Prescaler
-    reg [7:0] prescaler = 0;
+
+    // If you want to get the ceil of x/y via truncation,
+    // apparently you can do (x+y-1)/y.
+
+    parameter CLK_FREQ = 16000000;
+    localparam SCALE_FACTOR = (CLK_FREQ+1000000-1)/1000000;
+    localparam WIDTH = $clog2(SCALE_FACTOR);
+    wire [WIDTH:0] scale_factor = SCALE_FACTOR;
+
+
+    reg scaled = 0;
+    reg [WIDTH:0] prescaler = 0;
     always @(posedge clk) begin
-        if(prescaler == 8'd15) begin
-            prescaler <= 0; 
+        if(prescaler == scale_factor - 1) begin
+            prescaler <= 0;
+            scaled <= 1;
         end
         else begin
             prescaler <= prescaler + 1;
+            scaled <= 0;
         end
     end
-    wire p_out;
-    assign p_out = prescaler == 15 ? 1 : 0;
     //*************************************************************************************
     // FSM
     //
@@ -73,7 +84,7 @@ module sonar(input clk,
     reg [1:0] state = 2'b00;
     assign trig = (state == 2'b0) && (status[0] == 1'b1);
     always @(posedge clk) begin
-        if(p_out) begin
+        if(scaled) begin
             case(state)
             2'b00:                                  // 10us trigger pulse 
                 begin
