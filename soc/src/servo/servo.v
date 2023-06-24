@@ -41,9 +41,10 @@ module servo(input wire clk,
 
     parameter CLK_FREQ = 16000000;
     localparam SCALE_FACTOR = $rtoi($ceil(0.00000635*CLK_FREQ));
-    wire [7:0] scale_factor = SCALE_FACTOR;
+    localparam WIDTH = $clog2(SCALE_FACTOR);
+    wire [WIDTH:0] scale_factor = SCALE_FACTOR;
 
-    reg [7:0] prescaler;
+    reg [WIDTH:0] prescaler;
     reg scaled;
     always @(posedge clk) begin
         if(prescaler == scale_factor) begin
