@@ -6,7 +6,7 @@ module servo(input wire clk,
              output reg [7:0] dout,
              output reg servo_pin
 );
-
+    parameter F_CPU = 16000000;
     //***************************************************************
     parameter SERVO_CONTROLLER_ADDRESS = 8'h00;
     localparam SERVO_ADDRESS = SERVO_CONTROLLER_ADDRESS;
@@ -39,8 +39,7 @@ module servo(input wire clk,
     
     // (1/f)*x = 6.35us ==> x = 6.35*f
 
-    parameter CLK_FREQ = 16000000;
-    localparam SCALE_FACTOR = $rtoi($ceil(0.00000635*CLK_FREQ));
+    localparam SCALE_FACTOR = $rtoi($ceil(0.00000635*F_CPU));
     localparam WIDTH = $clog2(SCALE_FACTOR);
     wire [WIDTH:0] scale_factor = SCALE_FACTOR;
 

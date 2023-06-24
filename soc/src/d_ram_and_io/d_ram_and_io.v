@@ -38,6 +38,7 @@ module d_ram_and_io(input wire clk,
                     output wire G,
                     output wire B,
 );
+    parameter F_CPU = 16000000;
     //***********************************************************************************
     // Memory control
     reg d_ram_w_en;
@@ -166,6 +167,7 @@ module d_ram_and_io(input wire clk,
                               .motor(motor),
                               .enable(motor_enable),
     );
+    defparam motor_controller_inst.F_CPU = F_CPU;
     //***********************************************************************************
     // servo controller at: 0x1011
     wire [7:0] servo_dout;
@@ -178,6 +180,7 @@ module d_ram_and_io(input wire clk,
                    .dout(servo_dout),
                    .servo_pin(servo_pin)
     );
+    defparam servo_inst.F_CPU = F_CPU;
     //***********************************************************************************
     // sonar controller from: 0x1012 - 0x1013
     wire [7:0] sonar_dout;
@@ -191,6 +194,7 @@ module d_ram_and_io(input wire clk,
                    .trig(trig),
                    .echo(echo)
     );
+    defparam sonar_inst.F_CPU = F_CPU;
     //***********************************************************************************
     // pic at 0x1014 - 0x101C
     wire [7:0] pic_dout;

@@ -7,6 +7,7 @@ module sonar(input clk,
              input wire echo,
              output wire trig
 );
+    parameter F_CPU = 16000000;
     //*********************************************
     parameter SONAR_ADDRESS = 8'h00;
     localparam CONTROL_ADDRESS = SONAR_ADDRESS;
@@ -47,8 +48,7 @@ module sonar(input clk,
     // If you want to get the ceil of x/y via truncation,
     // apparently you can do (x+y-1)/y.
 
-    parameter CLK_FREQ = 16000000;
-    localparam SCALE_FACTOR = (CLK_FREQ+1000000-1)/1000000;
+    localparam SCALE_FACTOR = (F_CPU+1000000-1)/1000000;
     localparam WIDTH = $clog2(SCALE_FACTOR);
     wire [WIDTH:0] scale_factor = SCALE_FACTOR;
 

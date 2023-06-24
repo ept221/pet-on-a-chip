@@ -10,7 +10,7 @@ module motor_controller(input wire clk,
 						output reg [3:0] motor,
 						output reg enable
 );
-
+	parameter F_CPU = 16000000;
 	//***************************************************************
 	parameter MOTOR_CONTROLLER_ADDRESS = 8'h00;
 	localparam MOTOR_ADDRESS = MOTOR_CONTROLLER_ADDRESS;
@@ -210,11 +210,10 @@ module motor_controller(input wire clk,
 	//***************************************************************
 	// Sample window generation. Strobe asserts every 0.1 seconds
 	// for a single clock cycle
+	
+	localparam WIDTH = $clog2(F_CPU);
 
-	parameter CPU_FREQ = 16000000;
-	parameter WIDTH = $clog2(CPU_FREQ);
-
-	wire [WIDTH:0] strobe_scale_factor = CPU_FREQ;
+	wire [WIDTH:0] strobe_scale_factor = F_CPU;
 
 	reg [WIDTH:0] x = 0;
 	reg strobe = 0;

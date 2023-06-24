@@ -16,7 +16,7 @@ module top(input wire clk,
            output wire trig,
            input wire echo
 );
-
+    parameter F_CPU = 16000000;
     //***************************************************************
     // Instantiate CPU
     wire reset_out;
@@ -93,5 +93,6 @@ module top(input wire clk,
                                    .G(G),
                                    .B(B)
     );
+    defparam d_ram_and_io_inst.F_CPU = 16000000;
     //***************************************************************
 endmodule
