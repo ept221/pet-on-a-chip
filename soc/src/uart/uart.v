@@ -19,6 +19,9 @@ module uart(input wire clk,
     // *--------*--------*--------*--------*--------*--------*--------*--------*
     //     7        6        5        4        3        2        1        0   
     //***********************************************************************************
+
+    // I think the equation is: baud_reg = F_CPU/(16*baud_rate) - 1
+
     parameter UART_ADDRESS = 8'h00;
     localparam UART_BAUD_ADDRESS = UART_ADDRESS;
     localparam UART_CONTROL_ADDRESS = UART_ADDRESS + 1;
