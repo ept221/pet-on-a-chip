@@ -259,7 +259,7 @@ To upload the configuration bitstream for the previously assembled program, run:
 ```
 You will now be able to interact with a basic shell over the UART at 115200 baud. Additionally, the output will also be sent over the VGA interface.
 
-## Requierments
+## Requirements
 - Yosys for synthisis
 - nextpnr for place and route
 - icestorm tools for icebram and iceprog
