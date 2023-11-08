@@ -263,3 +263,8 @@ You will now be able to interact with a basic shell over the UART at 115200 baud
 - Yosys for synthisis
 - nextpnr for place and route
 - icestorm tools for icebram and iceprog
+
+### Peripherals
+
+There are a variety of memory mapped peripherals included in the system. The memory map is configured in `soc/src/d_ram_and_io/d_ram_and_io.v`. Currently addresses `0x0000` to `0x07FF` are mapped to data ram. The peripherals are mapped from `0x1000` to `0x10FF`. The instructions `in` and `out` allow for reading and writing to peripherals within this address range in a single cycle. For example, `out r1, 5` writes the value in r1 to address `0x1005`. The graphics memory buffer is from `0x2000` to `0x2960`, which is outside the address range in which the `in` and `out` instructions can operate, and so the various other load and store instructions must be used instead.
+
