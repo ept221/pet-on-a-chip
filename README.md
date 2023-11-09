@@ -282,5 +282,22 @@ There are a variety of memory mapped peripherals included in the system. The mem
 |0x0001| Scale MSB|r/w||
 |0x0002| Control|r/w||
 |0x0003| CMPR0|r/w||
-|0x0003| CMPR1|r/w||
-|0x0003| Counter|r||
+|0x0004| CMPR1|r/w||
+|0x0005| Counter|r||
+
+### UART
+|Address|Register|r/w|Description|
+|-------|--------|---|-----------|
+|0x0000| Baud|r/w| Configures the baudrate|
+|0x0001| Status|r| Signals empty tx buffer and or full rx buffer|
+|0x0002| Buffer |r/w| Write to tx buffer, read from rx buffer|
+
+### Motor Controller
+|Address|Register|r/w|Description|
+|-------|--------|---|-----------|
+|0x0000| Control |r/w| Sets the motors' directions|
+|0x0001| Enable  |r/w| Enables the motor driver|
+|0x0002| Speed 0 |r/w| Target speed of motor 0|
+|0x0003| Speed 1 |r/w| Target speed of motor 1|
+|0x0004| RPM 0 |r| Actual speed of motor 0|
+|0x0005| RPM 1 |r| Actual speed of motor 1|
