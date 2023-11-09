@@ -268,3 +268,9 @@ You will now be able to interact with a basic shell over the UART at 115200 baud
 
 There are a variety of memory mapped peripherals included in the system. The memory map is configured in `soc/src/d_ram_and_io/d_ram_and_io.v`. Currently addresses `0x0000` to `0x07FF` are mapped to data ram. The peripherals are mapped from `0x1000` to `0x10FF`. The instructions `in` and `out` are designed to allow for quickly and easily reading and writing to peripherals within this address range. For example, `out r1, 5` writes the value in r1 to address `0x1005`. In contrast, when reading and writing to data memory, or writing to the graphics buffer which is from `0x2000` to `0x2960`, `in` and `out` cannot be used, and the other load and store instructions must be used instead, which require setting up a pointer in a register pair to the memory location you want to operate on.
 
+### GPIO
+|Address|Register|r/w|Description|
+|-------|--------|---|-----------|
+|0x0000|Direction|r/w|Sets GPIO pins to input or output|
+|0x0001|Port|r/w|Write values to be outputed|
+|0x0002|Pin|r|Read values on pins|
