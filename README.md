@@ -271,56 +271,56 @@ There are a variety of memory mapped peripherals included in the system. The mem
 ### GPIO
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000|Direction|r/w|Sets GPIO pins to input or output|
-|0x0001|Port|r/w|Write values to be outputed|
-|0x0002|Pin|r|Read values on pins|
+|0x1000|Direction|r/w|Sets GPIO pins to input or output|
+|0x1001|Port|r/w|Write values to be outputed|
+|0x1002|Pin|r|Read values on pins|
 
 ### Counter Timer
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000| Scale LSB|r/w||
-|0x0001| Scale MSB|r/w||
-|0x0002| Control|r/w||
-|0x0003| CMPR0|r/w||
-|0x0004| CMPR1|r/w||
-|0x0005| Counter|r||
+|0x1003| Scale LSB|r/w||
+|0x1004| Scale MSB|r/w||
+|0x1005| Control|r/w||
+|0x1006| CMPR0|r/w||
+|0x1007| CMPR1|r/w||
+|0x1008| Counter|r||
 
 ### UART
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000| Baud|r/w| Configures the baudrate|
-|0x0001| Status|r| Signals empty tx buffer and or full rx buffer|
-|0x0002| Buffer |r/w| Write to tx buffer, read from rx buffer|
+|0x100A| Baud|r/w| Configures the baudrate|
+|0x100B| Status|r| Signals empty tx buffer and or full rx buffer|
+|0x100C| Buffer |r/w| Write to tx buffer, read from rx buffer|
 
 ### Motor Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000| Control |r/w| Sets the motors' directions|
-|0x0001| Enable  |r/w| Enables the motor driver|
-|0x0002| Speed 0 |r/w| Target speed of motor 0|
-|0x0003| Speed 1 |r/w| Target speed of motor 1|
-|0x0004| RPM 0 |r| Actual speed of motor 0|
-|0x0005| RPM 1 |r| Actual speed of motor 1|
+|0x100D| Control |r/w| Sets the motors' directions|
+|0x100E| Enable  |r/w| Enables the motor driver|
+|0x100F| Speed 0 |r/w| Target speed of motor 0|
+|0x1010| Speed 1 |r/w| Target speed of motor 1|
+|0x1011| RPM 0 |r| Actual speed of motor 0|
+|0x1012| RPM 1 |r| Actual speed of motor 1|
 
 ### Servo Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000| Position|r/w| Sets the position of the servo|
+|0x1011| Position|r/w| Sets the position of the servo|
 
 ### Sonar Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000| Status | r| Signals new reading in range register |
-|0x0001| Range | r| Holds the measured distance|
+|0x1012| Status | r| Signals new reading in range register |
+|0x1013| Range | r| Holds the measured distance|
 
 ### Programmable Interrupt Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x0000| Vect 0 Low|r/w| LSBs of interrupt vector 0|
-|0x0001| Vect 0 High|r/w| MSBs of interrupt vector 0|
-|0x0002| Vect 1 Low|r/w| LSBs of interrupt vector 1|
-|0x0003| Vect 1 High|r/w| MSBs of interrupt vector 1|
-|0x0004| Vect 2 Low|r/w| LSBs of interrupt vector 2|
-|0x0005| Vect 2 High|r/w| MSBs of interrupt vector 2|
-|0x0006| Vect 3 Low|r/w| LSBs of interrupt vector 3|
-|0x0007| Vect 3 High|r/w| MSBs of interrupt vector 3|
+|0x1014| Vect 0 Low|r/w| LSBs of interrupt vector 0|
+|0x1015| Vect 0 High|r/w| MSBs of interrupt vector 0|
+|0x1016| Vect 1 Low|r/w| LSBs of interrupt vector 1|
+|0x1017| Vect 1 High|r/w| MSBs of interrupt vector 1|
+|0x1018| Vect 2 Low|r/w| LSBs of interrupt vector 2|
+|0x1019| Vect 2 High|r/w| MSBs of interrupt vector 2|
+|0x101A| Vect 3 Low|r/w| LSBs of interrupt vector 3|
+|0x101B| Vect 3 High|r/w| MSBs of interrupt vector 3|
