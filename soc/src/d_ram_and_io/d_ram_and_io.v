@@ -111,7 +111,7 @@ module d_ram_and_io(input wire clk,
                    .pins(pins)
     );
     //***********************************************************************************
-    // counter_timer from: 0x1003 - 0x1009
+    // counter_timer from: 0x1003 - 0x1008
     wire out0;
     wire out1;
     wire out0_en;
@@ -138,10 +138,10 @@ module d_ram_and_io(input wire clk,
                            .match1_flag(match1_flag)
     );
     //***********************************************************************************
-    // uart from: 0x100A - 0x100C
+    // uart from: 0x1009 - 0x100B
     wire [7:0] uart_dout;
 
-    uart #(.UART_ADDRESS(8'h0A))
+    uart #(.UART_ADDRESS(8'h09))
         uart_inst(.clk(clk),
                   .rst(rst),
                   .din(din),
@@ -153,9 +153,9 @@ module d_ram_and_io(input wire clk,
                   .tx(tx)
     );
     //***********************************************************************************
-    // motor controller from: 0x100D - 0x1010
+    // motor controller from: 0x100C - 0x1011
     wire [7:0] motor_controller_dout;
-    motor_controller #(.MOTOR_CONTROLLER_ADDRESS(8'h0D))
+    motor_controller #(.MOTOR_CONTROLLER_ADDRESS(8'h0C))
         motor_controller_inst(.clk(clk),
                               .din(din),
                               .address(address[7:0]),
@@ -169,9 +169,9 @@ module d_ram_and_io(input wire clk,
     );
     defparam motor_controller_inst.F_CPU = F_CPU;
     //***********************************************************************************
-    // servo controller at: 0x1011
+    // servo controller at: 0x1012
     wire [7:0] servo_dout;
-    servo #(.SERVO_CONTROLLER_ADDRESS(8'h11))
+    servo #(.SERVO_CONTROLLER_ADDRESS(8'h12))
         servo_inst(.clk(clk),
                    .din(din),
                    .address(address[7:0]),
@@ -182,9 +182,9 @@ module d_ram_and_io(input wire clk,
     );
     defparam servo_inst.F_CPU = F_CPU;
     //***********************************************************************************
-    // sonar controller from: 0x1012 - 0x1013
+    // sonar controller from: 0x1013 - 0x1014
     wire [7:0] sonar_dout;
-    sonar #(.SONAR_ADDRESS(8'h12))
+    sonar #(.SONAR_ADDRESS(8'h13))
         sonar_inst(.clk(clk),
                    .din(din),
                    .address(address[7:0]),
@@ -196,9 +196,9 @@ module d_ram_and_io(input wire clk,
     );
     defparam sonar_inst.F_CPU = F_CPU;
     //***********************************************************************************
-    // pic at 0x1014 - 0x101C
+    // pic at 0x1015 - 0x101C
     wire [7:0] pic_dout;
-    pic #(.PIC_ADDRESS(8'h14))
+    pic #(.PIC_ADDRESS(8'h15))
         pic_inst(.clk(clk),
                  .din(din),
                  .address(address[7:0]),

@@ -1,14 +1,30 @@
 ;******************************************************************************
-        .define uart_baud, 0x0A
-        .define uart_ctrl, 0x0B
-        .define uart_buffer, 0x0C
+        .define dir_reg, 0x00
+        .define port_reg, 0x01
+        .define pin_reg, 0x02
 
-        .define motor_control, 0x0D
-        .define motor_enable, 0x0E
-        .define motor_pwm0, 0x0F
-        .define motor_pwm1, 0x10
-        .define motor_speed0, 0x11
-        .define motor_speed1, 0x12
+        .define prescaler_l, 0x03
+        .define prescaler_h, 0x04
+        .define count_ctrl, 0x05
+
+        .define uart_baud, 0x09
+        .define uart_ctrl, 0x0A
+        .define uart_buffer, 0x0B
+
+        .define motor_control, 0x0C
+        .define motor_enable, 0x0D
+        .define motor_0_sp, 0x0E
+        .define motor_1_sp, 0x0F
+        .define motor_0_fb, 0x10
+        .define motor_1_fb, 0x11
+
+        .define servo, 0x12
+
+        .define sonar_control, 0x13
+        .define sonar_range, 0x14
+
+        .define top_isr_vec_reg_l, 0x15
+        .define top_isr_vec_reg_h, 0x16
 
         .define gpu_addr, 0x2000
         .define gpu_ctrl_reg, 0x80
@@ -25,12 +41,12 @@
         out r1, motor_control
 
         ldi r0, 10
-        out r0, motor_pwm0
-        out r0, motor_pwm1
+        out r0, motor_0_sp
+        out r0, motor_1_sp
 
 loop:   in r1, uart_ctrl
         ani r1, 2
         bz loop                 ; poll for empty buffer
-        in r0, motor_speed0
+        in r0, motor_0_fb
         out r0, uart_buffer
         br loop

@@ -21,7 +21,6 @@ module counter_timer(input wire clk,
     localparam CMPR0_ADDRESS = COUNTER_TIMER_ADDRESS + 3;
     localparam CMPR1_ADDRESS = COUNTER_TIMER_ADDRESS + 4;
     localparam COUNTER_ADDRESS = COUNTER_TIMER_ADDRESS + 5;
-    localparam INTERRUPT_FLAGS_ADDRESS = COUNTER_TIMER_ADDRESS + 6;
     //*********************************************************************************************
     // Prescaler registeres
     reg [15:0] scaleFactor = 0;

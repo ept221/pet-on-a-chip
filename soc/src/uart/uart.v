@@ -48,9 +48,6 @@ module uart(input wire clk,
                 end
             end
             UART_CONTROL_ADDRESS: begin
-                if(w_en) begin
-                    uart_control[7:2] <= din[7:2];
-                end
                 if(r_en) begin
                    dout <= uart_control; 
                 end
