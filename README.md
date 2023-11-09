@@ -274,3 +274,13 @@ There are a variety of memory mapped peripherals included in the system. The mem
 |0x0000|Direction|r/w|Sets GPIO pins to input or output|
 |0x0001|Port|r/w|Write values to be outputed|
 |0x0002|Pin|r|Read values on pins|
+
+### Counter Timer
+|Address|Register|r/w|Description|
+|-------|--------|---|-----------|
+|0x0000| Scale LSB|r/w||
+|0x0001| Scale MSB|r/w||
+|0x0002| Control|r/w||
+|0x0003| CMPR0|r/w||
+|0x0003| CMPR1|r/w||
+|0x0003| Counter|r||
