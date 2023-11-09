@@ -318,9 +318,9 @@ There are a variety of memory mapped peripherals included in the system. The mem
 |-------|--------|---|-----------|
 |0x0000| Vect 0 Low|r/w| LSBs of interrupt vector 0|
 |0x0001| Vect 0 High|r/w| MSBs of interrupt vector 0|
-|0x0000| Vect 1 Low|r/w| LSBs of interrupt vector 1|
-|0x0001| Vect 1 High|r/w| MSBs of interrupt vector 1|
-|0x0000| Vect 2 Low|r/w| LSBs of interrupt vector 2|
-|0x0001| Vect 2 High|r/w| MSBs of interrupt vector 2|
-|0x0000| Vect 3 Low|r/w| LSBs of interrupt vector 3|
-|0x0001| Vect 3 High|r/w| MSBs of interrupt vector 3|
+|0x0002| Vect 1 Low|r/w| LSBs of interrupt vector 1|
+|0x0003| Vect 1 High|r/w| MSBs of interrupt vector 1|
+|0x0004| Vect 2 Low|r/w| LSBs of interrupt vector 2|
+|0x0005| Vect 2 High|r/w| MSBs of interrupt vector 2|
+|0x0006| Vect 3 Low|r/w| LSBs of interrupt vector 3|
+|0x0007| Vect 3 High|r/w| MSBs of interrupt vector 3|
