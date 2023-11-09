@@ -301,3 +301,14 @@ There are a variety of memory mapped peripherals included in the system. The mem
 |0x0003| Speed 1 |r/w| Target speed of motor 1|
 |0x0004| RPM 0 |r| Actual speed of motor 0|
 |0x0005| RPM 1 |r| Actual speed of motor 1|
+
+### Servo Controller
+|Address|Register|r/w|Description|
+|-------|--------|---|-----------|
+|0x0000| Position|r/w| Sets the position of the servo|
+
+#### Sonar Controller
+|Address|Register|r/w|Description|
+|-------|--------|---|-----------|
+|0x0000| Status | r| Signals new reading in range register |
+|0x0001| Range | r| Holds the measured distance|
