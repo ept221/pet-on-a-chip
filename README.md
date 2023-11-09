@@ -313,7 +313,7 @@ There are a variety of memory mapped peripherals included in the system. The mem
 |0x0000| Status | r| Signals new reading in range register |
 |0x0001| Range | r| Holds the measured distance|
 
-### 
+### Programmable Interrupt Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
 |0x0000| Vect 0 Low|r/w| LSBs of interrupt vector 0|
