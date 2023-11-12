@@ -211,9 +211,9 @@ module motor_controller(input wire clk,
 	// Sample window generation. Strobe asserts every 0.1 seconds
 	// for a single clock cycle
 	
-	localparam WIDTH = $clog2(F_CPU);
+	localparam WIDTH = $clog2(F_CPU/10);
 
-	wire [WIDTH:0] strobe_scale_factor = F_CPU;
+	wire [WIDTH:0] strobe_scale_factor = F_CPU/10;
 
 	reg [WIDTH:0] x = 0;
 	reg strobe = 0;

@@ -23,8 +23,8 @@
                 .define sonar_control, 0x13
                 .define sonar_range, 0x14
 
-                .define top_isr_vec_reg_l, 0x15
-                .define top_isr_vec_reg_h, 0x16
+                .define top_isr_vec_reg_l, 0x17
+                .define top_isr_vec_reg_h, 0x18
 
                 .define gpu_addr, 0x2000
                 .define gpu_ctrl_reg, 0x80
