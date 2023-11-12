@@ -288,39 +288,39 @@ There are a variety of memory mapped peripherals included in the system. The mem
 ### UART
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x100A| Baud|r/w| Configures the baudrate|
-|0x100B| Status|r| Signals empty tx buffer and or full rx buffer|
-|0x100C| Buffer |r/w| Write to tx buffer, read from rx buffer|
+|0x1009| Baud|r/w| Configures the baudrate|
+|0x100A| Status|r| Signals empty tx buffer and or full rx buffer|
+|0x100B| Buffer |r/w| Write to tx buffer, read from rx buffer|
 
 ### Motor Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x100D| Control |r/w| Sets the motors' directions|
-|0x100E| Enable  |r/w| Enables the motor driver|
-|0x100F| Speed 0 |r/w| Target speed of motor 0|
-|0x1010| Speed 1 |r/w| Target speed of motor 1|
-|0x1011| RPM 0 |r| Actual speed of motor 0|
-|0x1012| RPM 1 |r| Actual speed of motor 1|
+|0x100C| Control |r/w| Sets the motors' directions|
+|0x100D| Enable  |r/w| Enables the motor driver|
+|0x100E| Speed 0 |r/w| Target speed of motor 0|
+|0x100F| Speed 1 |r/w| Target speed of motor 1|
+|0x1010| RPM 0 |r| Actual speed of motor 0|
+|0x1011| RPM 1 |r| Actual speed of motor 1|
 
 ### Servo Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x1011| Position|r/w| Sets the position of the servo|
+|0x1012| Position|r/w| Sets the position of the servo|
 
 ### Sonar Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x1012| Status | r| Signals new reading in range register |
-|0x1013| Range | r| Holds the measured distance|
+|0x1013| Status | r| Signals new reading in range register |
+|0x1014| Range | r| Holds the measured distance|
 
 ### Programmable Interrupt Controller
 |Address|Register|r/w|Description|
 |-------|--------|---|-----------|
-|0x1014| Vect 0 Low|r/w| LSBs of interrupt vector 0|
-|0x1015| Vect 0 High|r/w| MSBs of interrupt vector 0|
-|0x1016| Vect 1 Low|r/w| LSBs of interrupt vector 1|
-|0x1017| Vect 1 High|r/w| MSBs of interrupt vector 1|
-|0x1018| Vect 2 Low|r/w| LSBs of interrupt vector 2|
-|0x1019| Vect 2 High|r/w| MSBs of interrupt vector 2|
-|0x101A| Vect 3 Low|r/w| LSBs of interrupt vector 3|
-|0x101B| Vect 3 High|r/w| MSBs of interrupt vector 3|
+|0x1015| Vect 0 Low|r/w| LSBs of interrupt vector 0|
+|0x1016| Vect 0 High|r/w| MSBs of interrupt vector 0|
+|0x1017| Vect 1 Low|r/w| LSBs of interrupt vector 1|
+|0x1018| Vect 1 High|r/w| MSBs of interrupt vector 1|
+|0x1019| Vect 2 Low|r/w| LSBs of interrupt vector 2|
+|0x101A| Vect 2 High|r/w| MSBs of interrupt vector 2|
+|0x101B| Vect 3 Low|r/w| LSBs of interrupt vector 3|
+|0x101C| Vect 3 High|r/w| MSBs of interrupt vector 3|
