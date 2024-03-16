@@ -33,13 +33,15 @@ Comments begin with semicolons.
 ```
 
 ### Constants
-Constants are in decimal by default, but hexadecimal and binary are also supported. Constants can also be negative and are stored in two's complement form when assembled.
+Constants are in decimal by default, but hexadecimal and binary are also supported. Constants can also be negative and are stored in two's complement form when assembled. Chars can also be entered as a constant.
 ```assembly
         .code
         ldi r0, 10     ; Decimal constant
         ldi r0, 0x0A   ; Hexadecimal constant
         ldi r0, 0b1010 ; Binary constant
         ldi r0, -10    ; A negative constant
+        ldi r0, 'a'    ; A char constant
+        ldi r0, '\n'   ; An escaped char constant
 ```
 
 ### Label Definitions
