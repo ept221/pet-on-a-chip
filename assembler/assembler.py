@@ -75,7 +75,7 @@ def read(name):
         if(line):
             block = []
             block.append([lineNumber, pc])
-            words = re.split(r'(\+|-|;|,|"|\s|(?:\[(?:l|L|h|H)\]))', line)
+            words = my_split(line)
             words = list(filter(None, words))
             block.append(words)
             block.append("")                     # A place holder for comments
@@ -83,6 +83,45 @@ def read(name):
             pc += 1
     file.close()
     return lines
+##############################################################################################################
+# A line splitting function for the lexer
+def my_split(line):
+    words = []
+    char_capture = False
+    word = ""
+    while(len(line) != 0):
+        char = line[0]
+        line = line[1:]
+        if(char_capture):
+            if(char == "\'"):
+                if(word and word[-1] != "\\"):
+                    word += char
+                    words.append(word)
+                    word = ""
+                    char_capture = False
+                else:
+                    word += char
+            else:
+                word += char
+        elif(char == "\'"):
+            word += char
+            char_capture = True
+        elif(char == "[" and len(line) >= 2 and (line[:2].upper() == "H]" or line[:2].upper() == "L]")):
+            words.append(word)
+            word = ""
+            word += char
+            word += line[:2]
+            line = line[2:]
+        elif(char in [" ", "+","-",";",",","\""]):
+            if(word):
+                words.append(word)
+            words.append(char)
+            word = ""
+        else:
+            word += char
+    if(word):
+        words.append(word)
+    return words
 ##############################################################################################################
 def lexer(lines):
     codeLines = []
@@ -129,75 +168,77 @@ def lexer(lines):
                 else:
                     block[1].append(word)
                     word = word.strip()
-                    word = word.upper()
-                    if word == "\"":
-                        tl.append(["<quote>", word])
+                    upper_word = word.upper()
+                    if upper_word == "\"":
+                        tl.append(["<quote>", upper_word])
                         stringCapture = True
-                    elif(re.match(r'^\s*$',word)):
+                    elif(re.match(r'^\s*$',upper_word)):
                         pass
-                    elif word in table.mnm_r_i:
-                        tl.append(["<mnm_r_i>", word])
-                    elif word in table.mnm_r_io:
-                        tl.append(["<mnm_r_io>", word])
-                    elif word in table.mnm_r_r:
-                        tl.append(["<mnm_r_r>", word])
-                    elif word in table.mnm_r_p:
-                        tl.append(["<mnm_r_p>", word])
-                    elif word in table.mnm_r_p_k:
-                        tl.append(["<mnm_r_p_k>", word])
-                    elif word in table.mnm_p_i:
-                        tl.append(["<mnm_p_i>", word])
-                    elif word in table.mnm_br:
-                        tl.append(["<mnm_br>", word])
-                    elif word in table.mnm_r:
-                        tl.append(["<mnm_r>", word])
-                    elif word in table.mnm_p:
-                        tl.append(["<mnm_p>", word])
-                    elif word in table.mnm_a:
-                        tl.append(["<mnm_a>", word])
-                    elif word in table.mnm_n:
-                        tl.append(["<mnm_n>", word])
-                    elif word in table.mnm_m:
-                        tl.append(["<mnm_m>", word])
-                    elif word in table.mnm_p_p:
-                        tl.append(["<mnm_p_p>", word])
-                    elif word in table.drct_0:
-                        tl.append(["<drct_0>", word])
-                    elif word in table.drct_1:
-                        tl.append(["<drct_1>", word])
-                    elif word in table.drct_2:
-                        tl.append(["<drct_2>", word])
-                    elif word in table.drct_m:
-                        tl.append(["<drct_m>", word])
-                    elif word in table.drct_s:
-                        tl.append(["<drct_s>", word])
-                    elif word == "[L]" or word == "[H]":
-                        tl.append(["<selector>", word])
-                    elif word == ",":
-                        tl.append(["<comma>", word])
-                    elif word == "+":
-                        tl.append(["<plus>", word])
-                    elif word == "-":
-                        tl.append(["<minus>", word])
-                    elif word in table.registers:
-                        tl.append(["<reg>", word])
-                    elif word in table.pairs:
-                        tl.append(["<pair>", word])
-                    elif re.match(r'^.+:$',word):
-                        tl.append(["<lbl_def>", word])
-                    elif(re.match(r'^(0X)[0-9A-F]+$', word)):
-                        tl.append(["<hex_num>", word])
-                    elif(re.match(r'^[0-9]+$', word)):
-                        tl.append(["<dec_num>", word])
-                    elif(re.match(r'^(0B)[0-1]+$', word)):
-                        tl.append(["<bin_num>", word]) 
-                    elif(re.match(r'^[A-Z_0-9]+$', word)):
-                        tl.append(["<symbol>", word])
-                    elif word == "$":
-                        tl.append(["<lc>", word])
+                    elif upper_word in table.mnm_r_i:
+                        tl.append(["<mnm_r_i>", upper_word])
+                    elif upper_word in table.mnm_r_io:
+                        tl.append(["<mnm_r_io>", upper_word])
+                    elif upper_word in table.mnm_r_r:
+                        tl.append(["<mnm_r_r>", upper_word])
+                    elif upper_word in table.mnm_r_p:
+                        tl.append(["<mnm_r_p>", upper_word])
+                    elif upper_word in table.mnm_r_p_k:
+                        tl.append(["<mnm_r_p_k>", upper_word])
+                    elif upper_word in table.mnm_p_i:
+                        tl.append(["<mnm_p_i>", upper_word])
+                    elif upper_word in table.mnm_br:
+                        tl.append(["<mnm_br>", upper_word])
+                    elif upper_word in table.mnm_r:
+                        tl.append(["<mnm_r>", upper_word])
+                    elif upper_word in table.mnm_p:
+                        tl.append(["<mnm_p>", upper_word])
+                    elif upper_word in table.mnm_a:
+                        tl.append(["<mnm_a>", upper_word])
+                    elif upper_word in table.mnm_n:
+                        tl.append(["<mnm_n>", upper_word])
+                    elif upper_word in table.mnm_m:
+                        tl.append(["<mnm_m>", upper_word])
+                    elif upper_word in table.mnm_p_p:
+                        tl.append(["<mnm_p_p>", upper_word])
+                    elif upper_word in table.drct_0:
+                        tl.append(["<drct_0>", upper_word])
+                    elif upper_word in table.drct_1:
+                        tl.append(["<drct_1>", upper_word])
+                    elif upper_word in table.drct_2:
+                        tl.append(["<drct_2>", upper_word])
+                    elif upper_word in table.drct_m:
+                        tl.append(["<drct_m>", upper_word])
+                    elif upper_word in table.drct_s:
+                        tl.append(["<drct_s>", upper_word])
+                    elif upper_word == "[L]" or upper_word == "[H]":
+                        tl.append(["<selector>", upper_word])
+                    elif upper_word == ",":
+                        tl.append(["<comma>", upper_word])
+                    elif upper_word == "+":
+                        tl.append(["<plus>", upper_word])
+                    elif upper_word == "-":
+                        tl.append(["<minus>", upper_word])
+                    elif upper_word in table.registers:
+                        tl.append(["<reg>", upper_word])
+                    elif upper_word in table.pairs:
+                        tl.append(["<pair>", upper_word])
+                    elif(re.match(r'^\'([^\'\\]|\\.)\'', word)):
+                        tl.append(["<char>", word])
+                    elif re.match(r'^.+:$',upper_word):
+                        tl.append(["<lbl_def>", upper_word])
+                    elif(re.match(r'^(0X)[0-9A-F]+$', upper_word)):
+                        tl.append(["<hex_num>", upper_word])
+                    elif(re.match(r'^[0-9]+$', upper_word)):
+                        tl.append(["<dec_num>", upper_word])
+                    elif(re.match(r'^(0B)[0-1]+$', upper_word)):
+                        tl.append(["<bin_num>", upper_word]) 
+                    elif(re.match(r'^[A-Z_0-9]+$', upper_word)):
+                        tl.append(["<symbol>", upper_word])
+                    elif upper_word == "$":
+                        tl.append(["<lc>", upper_word])
                     else:
-                        tl.append(["<idk_man>", word])
-                        error("Unknown token: " + word, line)
+                        tl.append(["<idk_man>", upper_word])
+                        error("Unknown token: " + upper_word, line)
                         return [0 , 0]
             ################################################################            
         if(block[1]):
@@ -224,7 +265,13 @@ def parse_expr(tokens, symbols, code, line):
         if(len(data) > 1 and (not tokens)):                     # If we just saw an operator but we have more tokens
             error("Expression missing number/symbol!",line)         # Then return an error
             return er
-        if(tokens[0][0] not in {"<hex_num>", "<dec_num>", "<bin_num>", "<symbol>", "<lc>"}): # Either we haven't seen anything at all, or the last token we saw was an operator. If the current token isn't a number/symbol/lc
+        if(tokens[0][0] == "<char>"):
+            try:
+                bytes(tokens[0][1],"utf-8").decode("unicode_escape")
+            except:
+                error("Unsupported escape sequence for char!",line)
+                return er
+        if(tokens[0][0] not in {"<hex_num>", "<dec_num>", "<bin_num>", "<symbol>", "<lc>", "<char>"}): # Either we haven't seen anything at all, or the last token we saw was an operator. If the current token isn't a number/symbol/lc
             if(tokens[0][0] in {"<plus>", "<minus>"}):
                 error("Expression has extra operator!",line)
                 return er
@@ -304,6 +351,9 @@ def evaluate(expr, symbols, address, mode):
             expr = expr[:-pop]
         elif(expr[numpos][0] == "<bin_num>"):
             result += sign*modify(int(expr[numpos][1], base=2),selector)
+            expr = expr[:-pop]
+        elif(expr[-1][0] == "<char>"):
+            result += sign*ord(bytes(expr[-1][1][1:-1],"utf-8").decode("unicode_escape"))
             expr = expr[:-pop]
         elif(expr[numpos][0] == "<lc>"):
             result += sign*modify((address),selector)
@@ -1109,7 +1159,7 @@ def parse_code(tokens, symbols, code, line):
 #          | <drct_m> <expr> { <comma>  <expr> }
 #          | <drct_s> <quote> { <string_seg> } <quote>
 #
-# <numb> ::= <hex_num> | <dec_num> | <bin_num> | <symbol> | <lc>
+# <numb> ::= <hex_num> | <dec_num> | <bin_num> | <symbol> | <lc> | <char>
 #
 ##############################################################################################################
 def parse_line(tokens, symbols, code, line):
